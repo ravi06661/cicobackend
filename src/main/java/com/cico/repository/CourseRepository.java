@@ -39,7 +39,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
 	@Query("SELECT c.courseId, c.courseName, COUNT(DISTINCT s), COUNT(DISTINCT b) " + "FROM Course c "
 			+ "LEFT JOIN c.subjects s ON s.isDeleted = :isDeleted "
-			+ "LEFT JOIN c.batches b ON b.isDeleted = :isDeleted " + "WHERE c.isDeleted = :isDeleted "
+			+ "LEFT JOIN c.batches b ON b.isDeleted = :isDeleted " + "WHERE c.isDeleted = :isDeleted "     
 			+ "GROUP BY c.courseId, c.courseName")
 	public List<Object[]> findByIsDeleted(@Param("isDeleted") boolean isDeleted);
 
