@@ -1,33 +1,28 @@
 package com.cico.service.impl;
 
 import java.time.LocalDate;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Fees;
 import com.cico.model.Student;
-import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
-import com.cico.repository.CourseRepository;
 import com.cico.repository.FeesRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.service.IFeesService;
@@ -41,10 +36,6 @@ public class FeesServiceImpl implements IFeesService {
 
 	@Autowired
 	private StudentRepository studentRepository;
-	@Autowired
-	private CourseRepository courseRepository;
-	@Autowired
-	private ModelMapper mapper;
 	
 	@Override
 	public Fees createStudentFees(Integer studentId, Integer courseId, Double finalFees, String date) {
@@ -67,22 +58,30 @@ public class FeesServiceImpl implements IFeesService {
 
 	@Override
 	public PageResponse<FeesResponse> feesList(Integer page, Integer size) {
-		// TODO Auto-generated method stub
-		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "feesId");
-		Page<Fees> fees = feesRepository.findAllByIsCompleted(false,pageable);
-		if(fees.getNumberOfElements()==0) {
-			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
-		}
-		List<FeesResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesResponse[].class));
-		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+	    Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "feesId");
+	    Page<Fees> fees = feesRepository.findAllByIsCompleted(false, pageable);
+
+	    if (fees.getNumberOfElements() == 0) {
+	        return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+	    }
+
+	    List<FeesResponse> feesResponseList = new ArrayList<>();
+
+	    for (Fees fee : fees.getContent()) {
+	        FeesResponse feesResponse = setFeesResponse(fee);
+	        feesResponseList.add(feesResponse);
+	    }
+
+	    return new PageResponse<>(feesResponseList, fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 	}
+
 
 	@Override
 	public FeesResponse findByFeesId(Integer feesId) {
 		// TODO Auto-generated method stub
 		Fees fees = feesRepository.findById(feesId).orElseThrow(()
 				->new ResourceNotFoundException("Fees Not found for given Id!!"));
-		return mapper.map(fees, FeesResponse.class);
+		return setFeesResponse(fees);
 	}
 
 	@Override
@@ -97,8 +96,8 @@ public class FeesServiceImpl implements IFeesService {
           if(Objects.isNull(findByStudent)) {
         	  throw new ResourceNotFoundException("Student not found");
           }
-          List<FeesResponse> asList = Arrays.asList(mapper.map(findByStudent, FeesResponse[].class));
-		return asList;
+         
+		return findByStudent.stream().map(obj->setFeesResponse(obj)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -112,8 +111,8 @@ public class FeesServiceImpl implements IFeesService {
         if(Objects.isNull(findFeesByGivenDates)) {
       	  throw new ResourceNotFoundException("Fees is not found from given Dates");
         }
-        List<FeesResponse> asList = Arrays.asList(mapper.map(findFeesByGivenDates, FeesResponse[].class));
-		return asList;
+       
+        return findFeesByGivenDates.stream().map(obj->setFeesResponse(obj)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -124,8 +123,7 @@ public class FeesServiceImpl implements IFeesService {
 		if(fees.getNumberOfElements()==0) {
 			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages() ,fees.isLast());
 		}
-		List<FeesResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesResponse[].class));
-		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+		return new PageResponse<>( fees.stream().map(obj->setFeesResponse(obj)).collect(Collectors.toList()), fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 	}
 
 	@Override
@@ -160,6 +158,33 @@ public class FeesServiceImpl implements IFeesService {
 	   feeResponse.put("Pending",row.get(0)[1]);
 	     feeResponse.put("Collected", row.get(0)[2]);
 	    return new ResponseEntity<>(feeResponse,HttpStatus.OK);
+	}
+	
+	
+	public  FeesResponse setFeesResponse(Fees fees){
+		
+		FeesResponse feesResponse=new FeesResponse();
+		feesResponse.setCollege(fees.getStudent().getCollege());
+		feesResponse.setCourseFees(fees.getCourse().getCourseFees());
+		feesResponse.setCourseId(fees.getCourse().getCourseId());
+		feesResponse.setCourseName(fees.getCourse().getCourseName());
+		feesResponse.setCreatedDate(fees.getCreatedDate());
+		feesResponse.setCurrentCourse(fees.getStudent().getCurrentCourse());
+		feesResponse.setDate(fees.getDate());
+		feesResponse.setDob(fees.getStudent().getDob());
+		feesResponse.setEmail(fees.getStudent().getEmail());
+		feesResponse.setFeesId(fees.getFeesId());
+		feesResponse.setFeesPaid(fees.getFeesPaid());
+		feesResponse.setFinalFees(fees.getFinalFees());
+		feesResponse.setIsCompleted(fees.getIsCompleted());
+		feesResponse.setMobile(fees.getStudent().getMobile());
+		feesResponse.setProfilePic(fees.getStudent().getProfilePic());
+		feesResponse.setRemainingFees(fees.getRemainingFees());
+		feesResponse.setStudentId(fees.getStudent().getStudentId());
+		feesResponse.setUpdatedDate(fees.getUpdatedDate());
+		feesResponse.setFullName(fees.getStudent().getFullName());
+	    
+		return feesResponse;
 	}
  
 	

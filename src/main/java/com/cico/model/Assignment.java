@@ -48,7 +48,7 @@ public class Assignment {
 	@OneToOne
 	private Subject subject;
 
-	private Boolean isDeleted = false;
+	private Boolean isDeleted = true;
 
 	private LocalDateTime createdDate;
 

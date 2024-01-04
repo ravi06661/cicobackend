@@ -11,13 +11,14 @@ import com.cico.model.Chapter;
 import com.cico.model.ChapterExamResult;
 import com.cico.model.Student;
 
-public interface ChapterExamResultRepo extends JpaRepository<ChapterExamResult, Integer>{
+public interface ChapterExamResultRepo extends JpaRepository<ChapterExamResult, Integer> {
 
 	public Optional<ChapterExamResult> findByChapterAndStudent(Chapter chapter, Student student);
-	
-	
-   @Query("SELECT c	 FROM ChapterExamResult c WHERE c.chapter.chapterId =:id")
-	public List<ChapterExamResult> findAllById (@Param("id")Integer id);
 
-	
+	@Query("SELECT c	 FROM ChapterExamResult c WHERE c.chapter.chapterId =:id")
+	public List<ChapterExamResult> findAllById(@Param("id") Integer id);
+
+//	@Query("SELECT  r.correctQuestion , r.wrongQuestion ,  r.notSelectedQuestion , r.scoreGet , r.totalQuestion  , r.student.fullName , r.studenId  ")
+//	public List<Object[]> findAllStudentResultWithChapterId(Integer chapterId);
+
 }

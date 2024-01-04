@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +34,7 @@ public class AdminController {
 	public ResponseEntity<JwtResponse> adminLogin(@RequestParam(name=AppConstants.ADMIN_ID) String adminId,
 			@RequestParam("password") String password) {
 		return ResponseEntity.ok(service.adminLogin(adminId, password));
-	}
+	}    
 	@PostMapping("/createAdmin")
 	public ResponseEntity<ApiResponse> createAdmin(@RequestParam("adminName") String adminName,
 			@RequestParam("adminEmail") String adminEmail, @RequestParam("password") String password) {
@@ -58,7 +57,7 @@ public class AdminController {
 	}
 
 	@DeleteMapping("/{adminId}")
-	public ResponseEntity<ApiResponse> deleteAdmin(@PathVariable(name=AppConstants.ADMIN_ID) Integer adminId) {
+	public ResponseEntity<ApiResponse> deleteAdmin(@RequestParam(name=AppConstants.ADMIN_ID) Integer adminId) {
 		ApiResponse response = service.deleteAdmin(adminId);
 		return ResponseEntity.ok(response);
 	}
@@ -75,5 +74,5 @@ public class AdminController {
 		AdminResponse admin = service.profileUpload(file, adminId);
 		return ResponseEntity.ok(admin);
 	}
-  
+   
 }

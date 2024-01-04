@@ -1,14 +1,11 @@
 package com.cico.service.impl;
 
-import java.lang.module.ResolutionException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,8 +32,6 @@ public class FeesPayServiceImpl implements IFeesPayService {
 	private FeesPayRepository feesPayRepository;
 	@Autowired
 	private FeesRepository feesRepository;
-	@Autowired
-	private ModelMapper mapper;
 
 	@Override
 	public FeesPay feesPayService(Integer feesId, Double feesPayAmount, String payDate, String recieptNo,
@@ -76,23 +71,21 @@ public class FeesPayServiceImpl implements IFeesPayService {
 			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(),
 					fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 		}
-		List<FeesResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesResponse[].class));
+		// List<FeesResponse> asList = Arrays.asList(mapper.map(fees.getContent(),
+		// FeesResponse[].class));
 
-		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(), fees.getTotalElements(),
-				fees.getTotalPages(), fees.isLast());
+		return new PageResponse<>(fees.stream().map(obj -> setFeesResponse(obj)).collect(Collectors.toList()),
+				fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 	}
 
 	@Override
 	public ResponseEntity<?> getAllTransectionByStudentId(Integer studentId) {
+
 		Fees fees = feesRepository.findFeesByStudentId(studentId);
-		List<FeesPayResponse> payResponse = new ArrayList<>();
 		List<FeesPay> findByFees = feesPayRepository.findByFees(fees);
 
-		for (FeesPay feesPay : findByFees) {
-			payResponse.add(mapper.map(feesPay, FeesPayResponse.class));
-		}
-
-		return new ResponseEntity<>(payResponse, HttpStatus.OK);
+		return new ResponseEntity<>(
+				findByFees.stream().map(obj -> setFeesPayResponse(obj)).collect(Collectors.toList()), HttpStatus.OK);
 	}
 
 	@Override
@@ -104,10 +97,9 @@ public class FeesPayServiceImpl implements IFeesPayService {
 			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(),
 					fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 		}
-		List<FeesPayResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesPayResponse[].class));
 
-		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(), fees.getTotalElements(),
-				fees.getTotalPages(), fees.isLast());
+		return new PageResponse<>(fees.stream().map(obj -> setFeesPayResponse(obj)).collect(Collectors.toList()),
+				fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 	}
 
 	@Override
@@ -115,7 +107,7 @@ public class FeesPayServiceImpl implements IFeesPayService {
 		// TODO Auto-generated method stub
 		FeesPay feesPay = feesPayRepository.findById(payId)
 				.orElseThrow(() -> new ResourceNotFoundException("Fees Pay not found from given Id"));
-		return mapper.map(feesPay, FeesPayResponse.class);
+		return setFeesPayResponse(feesPay);
 	}
 
 	@Override
@@ -154,15 +146,53 @@ public class FeesPayServiceImpl implements IFeesPayService {
 	@Override
 	public List<FeesPayResponse> searchByNameInFeesPayList(String fullName) {
 		List<FeesPay> findByFullName = feesPayRepository.findByFullName(fullName);
-		List<FeesPayResponse> asList = Arrays.asList(mapper.map(findByFullName, FeesPayResponse[].class));
-		return asList;
+		return findByFullName.stream().map(obj -> setFeesPayResponse(obj)).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<FeesPayResponse> searchByMonthInFeesPayList(String startDate, String endDate) {
-		List<FeesPay> findByMonth = feesPayRepository.findByMonth(LocalDate.parse(startDate),LocalDate.parse(endDate));
-		List<FeesPayResponse> asList = Arrays.asList(mapper.map(findByMonth, FeesPayResponse[].class));
-		return asList;
+		List<FeesPay> findByMonth = feesPayRepository.findByMonth(LocalDate.parse(startDate), LocalDate.parse(endDate));
+		return findByMonth.stream().map(obj -> setFeesPayResponse(obj)).collect(Collectors.toList());
 	}
 
+	public FeesResponse setFeesResponse(Fees fees) {
+
+		FeesResponse feesResponse = new FeesResponse();
+		feesResponse.setCollege(fees.getStudent().getCollege());
+		feesResponse.setCourseFees(fees.getCourse().getCourseFees());
+		feesResponse.setCourseId(fees.getCourse().getCourseId());
+		feesResponse.setCourseName(fees.getCourse().getCourseName());
+		feesResponse.setCreatedDate(fees.getCreatedDate());
+		feesResponse.setCurrentCourse(fees.getStudent().getCurrentCourse());
+		feesResponse.setDate(fees.getDate());
+		feesResponse.setDob(fees.getStudent().getDob());
+		feesResponse.setEmail(fees.getStudent().getEmail());
+		feesResponse.setFeesId(fees.getFeesId());
+		feesResponse.setFeesPaid(fees.getFeesPaid());
+		feesResponse.setFinalFees(fees.getFinalFees());
+		feesResponse.setIsCompleted(fees.getIsCompleted());
+		feesResponse.setMobile(fees.getStudent().getMobile());
+		feesResponse.setProfilePic(fees.getStudent().getProfilePic());
+		feesResponse.setRemainingFees(fees.getRemainingFees());
+		feesResponse.setStudentId(fees.getStudent().getStudentId());
+		feesResponse.setUpdatedDate(fees.getUpdatedDate());
+		feesResponse.setFullName(fees.getStudent().getFullName());
+
+		return feesResponse;
+	}
+
+	public FeesPayResponse setFeesPayResponse(FeesPay feesPay) {
+
+		FeesPayResponse feesPayResponse = new FeesPayResponse();
+		feesPayResponse.setPayId(feesPay.getPayId());
+		feesPayResponse.setCreateDate(feesPay.getCreateDate());
+		feesPayResponse.setDescription(feesPay.getDescription());
+		feesPayResponse.setFeesPayAmount(feesPay.getFeesPayAmount());
+		feesPayResponse.setPayDate(feesPay.getPayDate());
+		feesPayResponse.setRecieptNo(feesPay.getRecieptNo());
+		feesPayResponse.setUpdatedDate(feesPay.getUpdatedDate());
+		feesPayResponse.setFeesPay(setFeesResponse(feesPay.getFees()));
+
+		return feesPayResponse;
+	}
 }

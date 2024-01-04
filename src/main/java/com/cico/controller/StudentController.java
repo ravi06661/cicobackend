@@ -1,6 +1,5 @@
 package com.cico.controller;
 
-
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +24,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.model.Student;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
+import com.cico.payload.StudentReponseForWeb;
+import com.cico.payload.StudentReponseForWeb;
+import com.cico.payload.StudentReponseForWeb;
+import com.cico.payload.StudentReponseForWeb;
+import com.cico.payload.StudentReponseForWeb;
 import com.cico.payload.StudentResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
-
 
 @RequestMapping("/student")
 @RestController
@@ -41,8 +44,6 @@ public class StudentController {
 
 	@Autowired
 	private IStudentService studentService;
-	
-
 
 	@PostMapping("/studentLoginApi")
 	public ResponseEntity<?> loginStudent(@RequestParam("userId") String userId,
@@ -52,22 +53,22 @@ public class StudentController {
 		return studentService.login(userId, password, fcmId, deviceId, deviceType);
 
 	}
-	
+
 	@PostMapping("/registerStudent")
 	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
 		System.out.println(student);
 		Student registerStudent = studentService.registerStudent(student);
 		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
 	}
-	
+
 	@PutMapping("/updateStudentApi")
-	public ResponseEntity<Student> updateStudent(@RequestBody Student student){
+	public ResponseEntity<Student> updateStudent(@RequestBody Student student) {
 		Student updateStudent = studentService.updateStudent(student);
-		return new ResponseEntity<Student>(updateStudent,HttpStatus.OK);
-		
+		return new ResponseEntity<Student>(updateStudent, HttpStatus.OK);
+
 	}
 
-	@PostMapping("/studentDeviceIdApprovalApi")   // for request 
+	@PostMapping("/studentDeviceIdApprovalApi") // for request
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
 			@RequestParam("deviceId") String deviceId) {
 
@@ -75,18 +76,17 @@ public class StudentController {
 
 	}
 
-	@PostMapping("/studentDeviceApprovalApi")    
+	@PostMapping("/studentDeviceApprovalApi")
 	public ResponseEntity<?> approveStudentDevice(@RequestParam("userId") String userId,
 			@RequestParam("deviceId") String deviceId) {
 		return studentService.approveStudentDevice(userId, deviceId);
 	}
-	
-	@PostMapping("/studentDeviceChangeApi")    
+
+	@PostMapping("/studentDeviceChangeApi")
 	public ResponseEntity<?> studentDeviceChangeApi(@RequestParam("userId") String userId) {
 		return studentService.studentDeviceChangeApi(userId);
 	}
-	
-	
+
 	@PostMapping("/studentCheckInCheckOutApi")
 	public ResponseEntity<?> checkInCheckOut(@RequestParam("lat") String latitude,
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
@@ -126,13 +126,11 @@ public class StudentController {
 				studentImage, attachment);
 	}
 
-	
 	@GetMapping("/getStudentCheckInCheckOutHistory")
 	public ResponseEntity<?> getStudentCheckInCheckOutHistory(
 			@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
 			@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate,
-			@RequestParam(name = "offset") Integer offset,
-			@RequestParam(name = "limit") Integer limit) {
+			@RequestParam(name = "offset") Integer offset, @RequestParam(name = "limit") Integer limit) {
 
 		return studentService.getStudentCheckInCheckOutHistory(header, startDate, endDate, offset, limit);
 	}
@@ -184,29 +182,36 @@ public class StudentController {
 	@GetMapping("/getStudentData/{studentId}")
 	public ResponseEntity<Map<String, Object>> getStudentData(@PathVariable("studentId") Integer studentId) {
 		Map<String, Object> studentData = studentService.getStudentData(studentId);
-		System.out.println(studentData);
 		return new ResponseEntity<Map<String, Object>>(studentData, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("/getAllStudentData")
-	public PageResponse<StudentResponse> getAllStudentData(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
-			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size){
-		 
-		return studentService.getAllStudentData(page,size);
+	public PageResponse<StudentReponseForWeb> getAllStudentData(
+			@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
+
+		return studentService.getAllStudentData(page, size);
 	}
-	
+
 	@GetMapping("/getStudentById")
-	public ResponseEntity<StudentResponse> getStudentById(@RequestParam(name = "studentId") Integer studentId){
+	public ResponseEntity<StudentResponse> getStudentById(@RequestParam(name = "studentId") Integer studentId) {
 		StudentResponse studentById = studentService.getStudentById(studentId);
-		return new ResponseEntity<StudentResponse>(studentById,HttpStatus.OK);
+		return new ResponseEntity<StudentResponse>(studentById, HttpStatus.OK);
+	}
+
+	@GetMapping("/getStudentByIdForWeb")
+	public ResponseEntity<?> getStudentByIdForWeb(@RequestParam(name = "studentId") Integer studentId) {
+		return studentService.getStudentByIdForWeb(studentId);
+
 	}
 
 	@GetMapping("/searchStudentByName")
-	public ResponseEntity<List<StudentResponse>> searchStudentByName(@RequestParam(name = "fullName") String fullName){
+	public ResponseEntity<List<StudentResponse>> searchStudentByName(@RequestParam(name = "fullName") String fullName) {
 		List<StudentResponse> searchStudentByName = studentService.searchStudentByName(fullName);
-		return new ResponseEntity<List<StudentResponse>>(searchStudentByName,HttpStatus.OK);
-				
+		return new ResponseEntity<List<StudentResponse>>(searchStudentByName, HttpStatus.OK);
+
 	}
+
 	// getting total absent student today
 	@GetMapping("/getTotalTodayAbsentStudentAndPresent")
 	public ResponseEntity<Map<String, Object>> getTotalTodayAbsentStudent() {
@@ -236,65 +241,65 @@ public class StudentController {
 		Boolean status = studentService.approveStudentLeaveReqeust(studentId, leaveId, Leavestatus);
 		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
 	}
-	
-	//get student data for web profile
+
+	// get student data for web profile
 	@GetMapping("/getStudentForWebStudentProfile")
-	public ResponseEntity<?> getStudentProfileForWeb(@RequestParam("studentId") Integer studentId){
+	public ResponseEntity<?> getStudentProfileForWeb(@RequestParam("studentId") Integer studentId) {
 		return studentService.getStudentProfileForWeb(studentId);
 	}
-	
-	
+
 	//
 	@GetMapping("/getStudentOverAllAttendanceAndLeavesAndAbsents")
-	public ResponseEntity<?> getStudentOverAllAttendanceData(@RequestParam("studentId") Integer studentId){
+	public ResponseEntity<?> getStudentOverAllAttendanceData(@RequestParam("studentId") Integer studentId) {
 		return studentService.getStudentOverAllAttendanceData(studentId);
 	}
-		
 
 	@GetMapping("/getTodaysPresentsAndEarlyCheckouts")
-	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(@RequestParam("key") String key){
+	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(@RequestParam("key") String key) {
 		return studentService.getTodaysPresentsAndEarlyCheckouts(key);
 	}
 
 	@GetMapping("/getMonthwiseAttendence")
-	public ResponseEntity<?> getMonthwiseAttendence(@RequestParam("month") Integer month){
+	public ResponseEntity<?> getMonthwiseAttendence(@RequestParam("month") Integer month) {
 		return studentService.getMonthwiseAttendence(month);
 	}
-	
+
 	@GetMapping("/getStudentsAttendanceDataForTv")
-	public ResponseEntity<?> getStudentsAttendanceDataForTv(@RequestParam(name="date",required = false)String date){
+	public ResponseEntity<?> getStudentsAttendanceDataForTv(
+			@RequestParam(name = "date", required = false) String date) {
 		return studentService.getStudentsAttendanceDataForTv(date);
 	}
-	
+
 	@GetMapping("/getMonthwiseAdmissionCountForYear")
-	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(@RequestParam("year") Integer year){
+	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(@RequestParam("year") Integer year) {
 		return studentService.getMonthwiseAdmissionCountForYear(year);
 	}
-	
+
 	@GetMapping("/getStudentPresentsAbsentsAndLeavesYearWise")
-	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(@RequestParam("year") Integer year,@RequestParam("studentId") Integer studentId){
-		return studentService.getStudentPresentsAbsentsAndLeavesYearWise(year,studentId);
+	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(@RequestParam("year") Integer year,
+			@RequestParam("studentId") Integer studentId) {
+		return studentService.getStudentPresentsAbsentsAndLeavesYearWise(year, studentId);
 	}
-	
+
 	@GetMapping("/allStudent")
-	public ResponseEntity<?> allStudent(){
+	public ResponseEntity<?> allStudent() {
 		return studentService.allStudent();
 	}
-	
+
 	@GetMapping("/deleteTodayAttendance/{id}")
-	public ResponseEntity<?> deleteTodayAttendance(@PathVariable("id") Integer id){
+	public ResponseEntity<?> deleteTodayAttendance(@PathVariable("id") Integer id) {
 		return studentService.deleteTodayAttendance(id);
 	}
-	
+
 	@GetMapping("/todayAttendanceCountsForAdmin")
-	public ResponseEntity<?> todayAttendanceCountsForAdminDash(){
+	public ResponseEntity<?> todayAttendanceCountsForAdminDash() {
 		return studentService.getTodaysPresentAbsentEarlyCheckOutsMispunchAndLeaves();
 	}
-	
+
 	@GetMapping("/totalAttendaceAndLeaveDataOfStudentAfterJoining")
-	public ResponseEntity<?> totalAttendaceAndLeaveDataOfStudentAfterJoining(@RequestParam("id") Integer studentId){
-		return new ResponseEntity<>(studentService.currentMonthAttendenceForDashBoard(studentId,"CURRENT_YEAR"),HttpStatus.OK);
+	public ResponseEntity<?> totalAttendaceAndLeaveDataOfStudentAfterJoining(@RequestParam("id") Integer studentId) {
+		return new ResponseEntity<>(studentService.currentMonthAttendenceForDashBoard(studentId, "CURRENT_YEAR"),
+				HttpStatus.OK);
 	}
-	
-	
+
 }
