@@ -70,6 +70,7 @@ public class AppConstants {
 
 	public static final String DATA_FOUND = "data retrieve successfully";
 	
+	public static final String  STATUS = "status";
 	
 	
 }

@@ -21,10 +21,8 @@ import com.cico.model.Exam;
 import com.cico.model.Question;
 import com.cico.model.Subject;
 import com.cico.payload.ChapterContentResponse;
-import com.cico.payload.ChapterExamResultResponse;
 import com.cico.payload.ChapterResponse;
 import com.cico.payload.QuestionResponse;
-import com.cico.payload.StudentReponseForWeb;
 import com.cico.repository.ChapterContentRepository;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
@@ -48,7 +46,7 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Autowired
 	FileServiceImpl fileServiceImpl;
-
+             
 	@Override
 	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) throws Exception {
 		Chapter obj = chapterRepo.findByChapterNameAndIsDeleted(chapterName, false);
@@ -279,7 +277,7 @@ public class ChapterServiceImpl implements IChapterService {
 			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
 			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 		}
-		
+		     
 		List<QuestionResponse> list = questions.parallelStream().map(obj -> questionFilter(obj))
 				.collect(Collectors.toList());
 		
