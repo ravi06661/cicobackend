@@ -34,10 +34,10 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
 	@Query("SELECT c From Course c  Where c.courseId =:courseId AND c.isDeleted = 0")
 	public Optional<Course> findByCourseId(@Param("courseId") Integer courseId);
-
+//ravisingh
 	public List<Course> findAllByIsDeletedAndIsStarterCourse(boolean b, boolean c);
 
-	@Query("SELECT c.courseId, c.courseName, COUNT(DISTINCT s), COUNT(DISTINCT b) " + "FROM Course c "
+	@Query("SELECT c.courseId, c.courseName, COUNT(DISTINCT s), COUNT(DISTINCT b) " + "FROM Course c "                                                      
 			+ "LEFT JOIN c.subjects s ON s.isDeleted = :isDeleted "
 			+ "LEFT JOIN c.batches b ON b.isDeleted = :isDeleted " + "WHERE c.isDeleted = :isDeleted "     
 			+ "GROUP BY c.courseId, c.courseName")
