@@ -28,7 +28,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 			+ "GROUP BY c.courseId, c.courseName")
 	public Page<Object[]> findAllByIsDeleted(@Param("isDeleted") Boolean isDeleted, PageRequest p);
 
-//	@Query("SELECT c From Course c JOIN FETCH c.batches b Where c.courseId=:courseId AND b.isDeleted = 0")
+//	@Query("SELECT c From Course c JOIN FETCH c.batches b Where c.courseId=:courseId AND b.isDeleted = 0")        
 
 //	public Optional<Course> findById(@Param("courseId") Integer courseId);
 
