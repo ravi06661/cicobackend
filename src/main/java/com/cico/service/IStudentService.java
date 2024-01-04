@@ -14,7 +14,6 @@ import com.cico.payload.CounsellingResponse;
 import com.cico.payload.MockResponse;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
-import com.cico.payload.StudentReponseForWeb;
 import com.cico.payload.StudentResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 
@@ -65,7 +64,7 @@ public interface IStudentService {
 
 	public Boolean approveStudentLeaveReqeust(Integer studentId,Integer leaveId, String status);
 
-	public PageResponse<StudentReponseForWeb> getAllStudentData(Integer page, Integer size);
+	public PageResponse<StudentResponse> getAllStudentData(Integer page, Integer size);
 
 	public List<StudentResponse> searchStudentByName(String fullName);
 
@@ -113,7 +112,5 @@ public interface IStudentService {
 	public ResponseEntity<?> approveStudentDevice(String userId, String deviceId);
 
 	public ResponseEntity<?> studentDeviceChangeApi(String userId);
-
-	public ResponseEntity<?> getStudentByIdForWeb(Integer studentId);
 
 }

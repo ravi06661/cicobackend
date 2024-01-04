@@ -3,6 +3,8 @@ package com.cico.payload;
 import java.time.LocalDate;
 
 import com.cico.model.Course;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(value = Include.NON_NULL)
 public class StudentResponse {
 	private Integer studentId;
 	private String userId;
@@ -23,8 +26,8 @@ public class StudentResponse {
 	private String deviceId;
 	private String fcmId;
 	private String currentCourse;
-	private Course course;
-		
+	private  CourseResponse course;
+	
 	public StudentResponse(Integer studentId, String userId, String fullName, String mobile, String email,
 			LocalDate dob, String inUseDeviceId, String profilePic, String deviceId, String fcmId, String deviceType) {
 		super();

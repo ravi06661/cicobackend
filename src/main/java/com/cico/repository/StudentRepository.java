@@ -46,11 +46,11 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 		       "WHERE l.leaveStatus = 0 AND CURRENT_DATE() < l.leaveDate")
 		List<Object[]> getTotalTodaysLeavesRequest();
 
-  
-		@Query("SELECT  s.studentId,s.fullName,s.mobile,s.dob,s.profilePic,s.course.courseName ,s.course.courseId ,s.email, s.joinDate , s.applyForCourse "+
-				 "FROM Student s"+
-				" WHERE s.isCompleted=:isCompleted AND s.isActive=:isActive")
-	Page<Object[]> findAllByIsCompletedAndIsActive(Boolean isCompleted, Boolean isActive, Pageable pageable);
+
+//		@Query("SELECT  s.studentId,s.fullName,s.mobile,s.dob,s.profilePic,s.course.courseName "+
+//				 "FROM Student s"+
+//				" WHERE s.isCompleted=:isCompleted AND s.isActive=:isActive")
+	Page<Student> findAllByIsCompletedAndIsActive(Boolean isCompleted, Boolean isActive, Pageable pageable);
 
 	List<Student> findAllByFullNameContaining(String fullName);
 
@@ -98,7 +98,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	@Query("SELECT COUNT(s) FROM Student s WHERE s.course.courseId IN :courseIds AND s.isActive = 1 AND s.isCompleted = 0")
 	long findBycourseIdInAndIsActiveTrueAndIsCompletedFalse(@Param("courseIds") List<Integer> courseIds);
-
+	
 	@Query("SELECT COUNT(l) FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)  ")
 	public Long getTotalOnLeavesCount();
 }
