@@ -86,14 +86,7 @@ public class AssigmentController {
 	public ResponseEntity<?> getSubmitedAssignmetByStudentId(@RequestParam("studentId") Integer studentId) {
 		return service.getSubmitedAssignmetByStudentId(studentId);
 	}
-	
-	
-	
-	@GetMapping("/getSubmittedAssignmentBySubmissionId")
-	public ResponseEntity<?> getSubmittedAssignmentBySubmissionId(@RequestParam("submissionId") Long submissionId) {
-		return service.getSubmittedAssignmentBySubmissionId(submissionId);
-	}
-	
+
 	// This API for Admin Uses
 	@GetMapping("/getAllSubmitedAssginments")
 	public ResponseEntity<?> getAllSubmitedAssginments() {
@@ -122,9 +115,9 @@ public class AssigmentController {
 	}
 	
 	@GetMapping("/getAssignmentQuesSubmissionStatus")
-	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(@RequestParam("questionId") Long questionId
-			,@RequestParam("studentId")Integer studentId) {
-		return service.getAssignmentQuesSubmissionStatus(questionId,studentId);
+	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(@RequestParam("questionId") Long questionId,
+			@RequestParam("assignmentId") Long assignmentId,@RequestParam("studentId")Integer studentId) {
+		return service.getAssignmentQuesSubmissionStatus(questionId, assignmentId,studentId);
 	}
 	
 	@GetMapping("/getAllSubmissionAssignmentTaskStatusByCourseIdFilter")

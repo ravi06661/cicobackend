@@ -28,9 +28,9 @@ public class AssignmentSubmission {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long submissionId;
 
-//	private Long assignmentId;
-//
-//	private Long taskId;
+	private Long assignmentId;
+
+	private Long taskId;
 
 	@OneToOne
 	private Student student;

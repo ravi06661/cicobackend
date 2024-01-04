@@ -42,11 +42,9 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAllLockedAndUnlockedAssignment(Integer studentId);
 
-	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Integer studentId);
+	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId, Integer studentId);
 
 	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId,Integer subjectId);
-
-	ResponseEntity<?> getSubmittedAssignmentBySubmissionId(Long submissionId);
 
 }
 

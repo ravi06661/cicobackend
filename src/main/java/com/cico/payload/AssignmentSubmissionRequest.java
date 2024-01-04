@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AssignmentSubmissionRequest {
 
-	//private Long assignmentId;
+	private Long assignmentId;
 	private Long taskId;
 	private Integer studentId;
 	private String description;

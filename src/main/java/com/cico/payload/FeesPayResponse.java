@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class FeesPayResponse {
 
 	private Integer payId;
-	private Fees fees;
+	private FeesResponse feesPay;
 	private Double feesPayAmount;
 	private LocalDate payDate;
 	private String recieptNo;

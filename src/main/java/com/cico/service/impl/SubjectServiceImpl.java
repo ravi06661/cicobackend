@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.hibernate.tool.schema.internal.StandardForeignKeyExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,9 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.Course;
 import com.cico.model.Subject;
+import com.cico.payload.ChapterResponse;
 import com.cico.payload.SubjectResponse;
+import com.cico.payload.TechnologyStackResponse;
 import com.cico.repository.ChapterCompletedRepository;
 import com.cico.repository.CourseRepository;
 import com.cico.repository.StudentRepository;
@@ -53,7 +57,7 @@ public class SubjectServiceImpl implements ISubjectService {
 		subject = new Subject();
 		subject.setSubjectName(subjectName.trim());
 		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
-		
+
 		Subject save = subRepo.save(subject);
 		if (Objects.nonNull(save)) {
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
@@ -83,25 +87,44 @@ public class SubjectServiceImpl implements ISubjectService {
 	}
 
 	@Override
-	public ResponseEntity<?> updateSubject(Subject subject) throws Exception {
-		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId())
+	public ResponseEntity<?> updateSubject(SubjectResponse subjectResponse) throws Exception {
+		subRepo.findBySubjectIdAndIsDeleted(subjectResponse.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
-	    Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim());
-		if(Objects.nonNull(sub)) {
+		Subject sub = subRepo.findBySubjectNameAndIsDeleted(subjectResponse.getSubjectName().trim());
+		if (Objects.nonNull(sub)) {
 			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
-		}	
-		Subject obj = subRepo.save(subject);
-	obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
-		return new ResponseEntity<>(obj, HttpStatus.OK);
+		}
+		Optional<Subject> findById = subRepo.findById(subjectResponse.getSubjectId());
+		if (findById.isPresent()) {
+			findById.get().setSubjectName(subjectResponse.getSubjectName());
+			findById.get().setTechnologyStack(
+					technologyStackRepository.findById(subjectResponse.getTechnologyStack().getId()).get());
+		}
+
+		Subject save = subRepo.save(findById.get());
+
+		SubjectResponse response = new SubjectResponse();
+		response.setSubjectName(save.getSubjectName());
+		response.setChapterCount((long) save.getChapters().size());
+		response.setSubjectId(save.getSubjectId());
+
+		TechnologyStackResponse technologyStackResponse = new TechnologyStackResponse();
+		technologyStackResponse.setImageName(save.getTechnologyStack().getImageName());
+		technologyStackResponse.setTechnologyName(save.getTechnologyStack().getTechnologyName());
+		technologyStackResponse.setId(save.getTechnologyStack().getId());
+		response.setTechnologyStack(technologyStackResponse);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@Override
 	public Map<String, Object> getSubjectById(Integer subjectId) {
 		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-		subject.setChapters(subject.getChapters().stream().filter(obj->obj.getIsDeleted()!=true).collect(Collectors.toList()));
-		
+		subject.setChapters(
+				subject.getChapters().stream().filter(obj -> obj.getIsDeleted() != true).collect(Collectors.toList()));
+
 		List<Chapter> chapters = subject.getChapters();
 		long completedCount = chapters.stream().filter(Chapter::getIsCompleted).count();
 		Map<String, Object> map = new HashMap<>();
@@ -135,43 +158,90 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Override
 	public List<SubjectResponse> getAllSubjects() {
-		List<Subject> subjects = subRepo.findByIsDeletedFalse();
-		List<SubjectResponse> responseSend = new ArrayList<>();
-		for (Subject s : subjects) {
-			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size()); // all chapter with isDeleted False
-		//	response.setChapterCount(s.getChapters().size()); // all chapter with isDeleted False
-			response.setTechnologyStack(s.getTechnologyStack());
-			response.setIsActive(s.getIsActive());
-			response.setIsDeleted(s.getIsDeleted());
-			response.setSubjectId(s.getSubjectId());
-			response.setSubjectName(s.getSubjectName());
-			responseSend.add(response);
-		}
-		if (subjects.isEmpty())
+
+		List<Object[]> allSubject = subRepo.findByIsDeletedFalse();
+		List<SubjectResponse> list = new ArrayList<>();
+
+		if (allSubject.isEmpty())
 			new ResourceNotFoundException("No subject available");
-		return responseSend;
+		for (Object[] row : allSubject) {
+			SubjectResponse response = new SubjectResponse();
+			response.setSubjectId((Integer) row[0]);
+			response.setSubjectName((String) row[1]);
+			response.setChapterCount((Long) row[4]);
+
+			TechnologyStackResponse technologyStackResponse = new TechnologyStackResponse();
+			technologyStackResponse.setImageName((String) row[3]);
+			technologyStackResponse.setTechnologyName((String) row[2]);
+			response.setTechnologyStack(technologyStackResponse);
+
+			list.add(response);
+		}
+		return list;
+
 	}
 
 	@Override
 	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
+
 		Course course = studentRepository.findById(studentId).get().getCourse();
+
 		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
-		List<Subject> list = subjects.stream().filter(obj ->obj.getIsDeleted()==false).collect(Collectors.toList());
+
+		List<Subject> list = subjects.stream().filter(obj -> obj.getIsDeleted() == false).collect(Collectors.toList());
+
 		List<SubjectResponse> responseSend = new ArrayList<>();
+
 		for (Subject s : list) {
+
 			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size());
-			response.setTechnologyStack(s.getTechnologyStack());
-		    response.setIsActive(s.getIsActive());
-			response.setIsDeleted(s.getIsDeleted());
+			response.setChapterCount((long) (s.getChapters().stream().filter(obj -> obj.getIsDeleted() == false)
+					.collect(Collectors.toList()).size()));
+			TechnologyStackResponse stackResponse = new TechnologyStackResponse();
+			stackResponse.setId(s.getTechnologyStack().getId());
+			stackResponse.setImageName(s.getTechnologyStack().getImageName());
+			stackResponse.setTechnologyName(s.getTechnologyStack().getTechnologyName());
+			response.setTechnologyStack(stackResponse);
 			response.setSubjectId(s.getSubjectId());
 			response.setSubjectName(s.getSubjectName());
-			response.setChapterCompleted(chapterCompletedRepository.countBySubjectIdAndStudentId(s.getSubjectId(), studentId));
+			response.setChapterCompleted(
+					chapterCompletedRepository.countBySubjectIdAndStudentId(s.getSubjectId(), studentId));
 			responseSend.add(response);
+
 		}
+
 		if (subjects.isEmpty())
 			new ResourceNotFoundException("No subject available");
+
 		return responseSend;
+
+	}
+
+	@Override
+	public ResponseEntity<?> getAllChapterWithSubjectId(Integer subjectId) {
+
+		List<Object[]> allChapterWithSubjectId = subRepo.getAllChapterWithSubjectId(subjectId);
+		Map<String, Object> response = new HashMap<>();
+
+		if (!allChapterWithSubjectId.isEmpty()  && allChapterWithSubjectId.get(0)[3]!=(null)) {
+			List<ChapterResponse> chapterResponses = new ArrayList<>();
+			for (Object[] row : allChapterWithSubjectId) {
+				ChapterResponse chapterResponse = new ChapterResponse();
+				chapterResponse.setChapterId((Integer) row[3]);
+				chapterResponse.setChapterName((String) row[4]);
+				chapterResponse.setChapterImage((String) row[1]);
+				chapterResponse.setSubjectId(subjectId);
+				chapterResponse.setSubjectName((String) row[2]);
+				chapterResponses.add(chapterResponse);
+			}
+			response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
+			response.put("chapters", chapterResponses);
+			
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} else {
+			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
+			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+		}
+
 	}
 }

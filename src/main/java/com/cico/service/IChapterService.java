@@ -26,12 +26,16 @@ public interface IChapterService {
 
 	List<Chapter> getChaptersBySubject(Integer subjectId);
 
-	Chapter addContentToChapter(Integer chapterId, String title, String subTitle, String content);
+	ResponseEntity<?> addContentToChapter(Integer chapterId, String title, String subTitle, String content);
 
 	ChapterContent updateChapterContent(String title, String subTitle, String content,Integer contentId);
 
 	ChapterContent getChapterContent(Integer chapterContentId) throws Exception;
 
 	void deleteChapterContent(Integer contentId);
+
+	ResponseEntity<?> getChapterContentWithChapterId(Integer chapterId);
+
+	ResponseEntity<?> getChaperExamQuestions(Integer chapterId);
 
 }

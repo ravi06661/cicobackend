@@ -18,10 +18,18 @@ import lombok.NoArgsConstructor;
 public class FeesResponse {
 
 	private Integer feesId;
-	
-	private Student student;
+	private Integer studentId;
+	private String fullName;
+	private String mobile;
+	private LocalDate dob;
+	private String email;
+	private String college;
+	private String profilePic;
+	private String currentCourse;
 
-	private Course course;
+	private Integer courseId;
+	private String courseName;
+	private String courseFees;
 	private Double finalFees;
 	private Double feesPaid;
 	private Double remainingFees;
