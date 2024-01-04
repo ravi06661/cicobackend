@@ -21,79 +21,70 @@ import com.cico.payload.ApiResponse;
 import com.cico.payload.SubjectResponse;
 import com.cico.service.ISubjectService;
 
+
+
 @RestController
 @RequestMapping("/subject")
 @CrossOrigin("*")
 public class SubjectController {
-
+	
 	@Autowired
 	private ISubjectService subjectService;
-
+	
 	@PostMapping("/addSubject")
-	public ResponseEntity<?> addSubject(@RequestParam("subjectName") String subjectName,
-			@RequestParam("imageId") Integer imageId) {
-		return subjectService.addSubject(subjectName, imageId);
+	public ResponseEntity<?> addSubject(@RequestParam("subjectName") String subjectName,@RequestParam("imageId") Integer imageId){
+		return subjectService.addSubject(subjectName,imageId);	
 	}
-
+	
 	@PostMapping("/addChapterToSubject")
-	public ResponseEntity<String> addChapterToSubject(@RequestParam("subjectId") Integer subjectId,
-			@RequestParam("chapterName") String chapterName) {
-		subjectService.addChapterToSubject(subjectId, chapterName);
-		return ResponseEntity.ok("Chapter Added");
+	public ResponseEntity<String> addChapterToSubject(@RequestParam("subjectId") Integer subjectId,@RequestParam("chapterName") String chapterName){
+	subjectService.addChapterToSubject(subjectId,chapterName);	
+	return ResponseEntity.ok("Chapter Added");
 	}
-
+	
 	@PutMapping("/updateSubject")
-	public ResponseEntity<?> updateSubject(@RequestBody SubjectResponse subject) throws Exception {
-		return subjectService.updateSubject(subject);
+	public ResponseEntity<?> updateSubject(@RequestBody Subject subject) throws Exception{
+	  return subjectService.updateSubject(subject);
 
 	}
-
+	
 	@GetMapping("/getSubjectById")
-	public ResponseEntity<Map<String, Object>> getSubjectById(@RequestParam("subjectId") Integer subjectId) {
-		Map<String, Object> map = subjectService.getSubjectById(subjectId);
-		return ResponseEntity.ok(map);
+	public ResponseEntity<Map<String,Object>> getSubjectById(@RequestParam("subjectId") Integer subjectId){
+		Map<String,Object> map=subjectService.getSubjectById(subjectId);	
+	return ResponseEntity.ok(map);
 	}
-
+	
 	@PutMapping("/deleteSubject")
-	public ResponseEntity<String> deleteSubject(@RequestParam("subjectId") Integer subjectId) {
-		subjectService.deleteSubject(subjectId);
-		return ResponseEntity.ok("Subject Deleted");
+	public ResponseEntity<String> deleteSubject(@RequestParam("subjectId") Integer subjectId){
+	subjectService.deleteSubject(subjectId);	
+	return ResponseEntity.ok("Subject Deleted");
 	}
-
+	
 	@PutMapping("/updateSubjectStatus")
-	public ResponseEntity<String> updateSubjectStatus(@RequestParam("subjectId") Integer subjectId) {
-		subjectService.updateSubjectStatus(subjectId);
-		return ResponseEntity.ok("Subject Updated");
+	public ResponseEntity<String> updateSubjectStatus(@RequestParam("subjectId") Integer subjectId){
+	subjectService.updateSubjectStatus(subjectId);	
+	return ResponseEntity.ok("Subject Updated");
 	}
-
+	
 	@GetMapping("/getAllSubjects")
-	public ResponseEntity<List<SubjectResponse>> getAllSubjects() {
-		List<SubjectResponse> subjects = subjectService.getAllSubjects();
-		return ResponseEntity.ok(subjects);
+	public ResponseEntity<List<SubjectResponse>>getAllSubjects(){
+	      List<SubjectResponse> subjects = subjectService.getAllSubjects();
+	return ResponseEntity.ok(subjects);
 	}
-
 	@GetMapping("/getAllSubjectsWithChapterCompletedStatus/{studentId}")
-	public ResponseEntity<List<SubjectResponse>> getAllSubjects(@PathVariable("studentId") Integer studentId) {
-		List<SubjectResponse> subjects = subjectService.getAllSubjectsWithChapterCompletedStatus(studentId);
-		return ResponseEntity.ok(subjects);
+	public ResponseEntity<List<SubjectResponse>> getAllSubjects(@PathVariable("studentId")Integer studentId){
+	      List<SubjectResponse> subjects = subjectService.getAllSubjectsWithChapterCompletedStatus(studentId);
+	return ResponseEntity.ok(subjects);
 	}
-
+	
 //	@GetMapping("/getAllSubjectsByCourseId")
 //	public ResponseEntity<List<SubjectResponse>> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
 //	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
 //	return ResponseEntity.ok(subjects);
 //	}
-
 	@PutMapping("/deleteSubjectById")
-	public ResponseEntity<ApiResponse> deleteSubjectById(@RequestParam("subjectId") Integer subjectId) {
+	public ResponseEntity<ApiResponse>deleteSubjectById(@RequestParam("subjectId")Integer subjectId){
 		subjectService.deleteSubject(subjectId);
-		return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Success", HttpStatus.OK), HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(new ApiResponse(true,"Success",HttpStatus.OK),HttpStatus.OK);
 	}
-
-	@GetMapping("/getAllChapterWithSubjectId")
-	public ResponseEntity<?> getAllChapterWithSubjectId(@RequestParam("subjectId") Integer subjectId) {
-		return subjectService.getAllChapterWithSubjectId(subjectId);
-
-	}
-
 }

@@ -57,7 +57,6 @@ public class FileController {
 	@RequestMapping(value = "/getImageApi/{destination}/{fileName}", method = RequestMethod.GET, produces = MediaType.ALL_VALUE)
 	public void getImage(@PathVariable("fileName") String fileName, @PathVariable("destination") String destination,
 			HttpServletResponse response) throws IOException {
-		System.err.println(destination + " " + fileName);
 		InputStream data = fileService.getImages(fileName, destination);
 
 		// Determine content type based on file extension
