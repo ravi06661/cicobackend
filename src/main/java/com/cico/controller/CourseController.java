@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cico.model.Course;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.CourseRequest;
-import com.cico.payload.CourseResponse;
 import com.cico.payload.PageResponse;
 import com.cico.service.ICourseService;
 import com.cico.util.AppConstants;
@@ -34,9 +33,9 @@ public class CourseController {
 	}
 
 	@GetMapping("/findCourseByIdApi")
-	public ResponseEntity<CourseResponse> getCourseById(@RequestParam("courseId") Integer courseId) {
-		 CourseResponse courseResponse = courseService.findCourseById(courseId);
-		return ResponseEntity.ok(courseResponse);
+	public ResponseEntity<Course> getCourseById(@RequestParam("courseId") Integer courseId) {
+		Course course = courseService.findCourseById(courseId);
+		return ResponseEntity.ok(course);
 	}
 
 	@GetMapping("/findAllCourseApi")
@@ -48,7 +47,7 @@ public class CourseController {
 	}
 	
 	@PutMapping("/updateCourseApi")
-	public ResponseEntity<?> updateCourse(@RequestBody CourseResponse course) {
+	public ResponseEntity<?> updateCourse(@RequestBody Course course) {
 		ApiResponse updateCourse = courseService.updateCourse(course);
 		return ResponseEntity.status(HttpStatus.CREATED).body(updateCourse);
 	}
@@ -62,9 +61,9 @@ public class CourseController {
 				.body(new ApiResponse(Boolean.FALSE, AppConstants.SOMETHING_WENT_WRONG , HttpStatus.INTERNAL_SERVER_ERROR));
 	}
 
-	@GetMapping("/getAllNonStarterCourses")
-	public ResponseEntity<?> getAllNonStarterCourses(){
-		return courseService.getAllNonStarterCourses();
+	@GetMapping("/getAllCourseApi")
+	public ResponseEntity<?> getAllCourseApi(@RequestParam boolean isStarter){
+		return courseService.getAllCourseApi(isStarter);
 	}
 	
 	@PutMapping("/studentUpgradeCourse")
@@ -80,9 +79,5 @@ public class CourseController {
 		return courseService.getCourseProgress(studentId);
 	}
 	
-	@GetMapping("/getCoureWithBatchesAndSubjects")
-   public ResponseEntity<?>getCoureWithBatchesAndSubjects(@RequestParam("courseId")Integer courseId){
-		 return  courseService.getCoureWithBatchesAndSubjects(courseId);
-	}
 	
 }

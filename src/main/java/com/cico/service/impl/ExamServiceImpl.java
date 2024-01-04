@@ -24,8 +24,6 @@ import com.cico.model.Exam;
 import com.cico.model.Question;
 import com.cico.model.Student;
 import com.cico.payload.ChapterExamResultRequest;
-import com.cico.payload.ChapterExamResultResponse;
-import com.cico.payload.QuestionResponse;
 import com.cico.repository.ChapterCompletedRepository;
 import com.cico.repository.ChapterExamResultRepo;
 import com.cico.repository.ChapterRepository;
@@ -222,40 +220,14 @@ public class ExamServiceImpl implements IExamService {
 
 	@Override
 	public ResponseEntity<?> getChapterExamResult(Integer id) {
-		
 	    Map<String,Object>response=  new HashMap<>();
-	     
-		
-	    ChapterExamResult examResult = chapterExamResultRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-	    ChapterExamResultResponse  chapterExamResultResponse  = new  ChapterExamResultResponse();
-	    
-	    chapterExamResultResponse.setCorrecteQuestions(examResult.getCorrecteQuestions());
-	    chapterExamResultResponse.setId(examResult.getId());
-	    chapterExamResultResponse.setNotSelectedQuestions(examResult.getNotSelectedQuestions());
-	    chapterExamResultResponse.setReview(examResult.getReview());
-	    chapterExamResultResponse.setWrongQuestions(examResult.getWrongQuestions());
-	    chapterExamResultResponse.setTotalQuestion(examResult.getTotalQuestion());
-	    chapterExamResultResponse.setScoreGet(examResult.getScoreGet());
-	    
-	    
-		List<QuestionResponse> questions = examResult.getChapter().getExam().getQuestions().parallelStream().map(obj->questionFilter(obj)).collect(Collectors.toList());
-		response.put("examResult", chapterExamResultResponse);
+		ChapterExamResult examResult = chapterExamResultRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+		//List<Question> findAllByChapterAndIsDeleted = questionRepo.findAllByChapterAndIsDeleted(examResult.getChapter(), false);
+		               List<Question> questions = examResult.getChapter().getExam().getQuestions();
+		response.put("examResult", examResult);
 		response.put("questions", questions);
+	
 		return new ResponseEntity<>(response,HttpStatus.OK);
-	} 
-	public QuestionResponse questionFilter(Question question) {
-		QuestionResponse questionResponse =  new QuestionResponse();
-		questionResponse.setCorrectOption(question.getCorrectOption());
-		questionResponse.setOption1(question.getOption1());
-		questionResponse.setOption2(question.getOption2());
-		questionResponse.setOption3(question.getOption3());
-		questionResponse.setOption4(question.getOption3());
-		questionResponse.setSelectedOption(question.getSelectedOption());
-		questionResponse.setQuestionId(question.getQuestionId());
-		questionResponse.setQuestionContent(question.getQuestionContent());
-		questionResponse.setQuestionImage(question.getQuestionImage());
-	   
-		return questionResponse;
 	}
 
 	@Override
