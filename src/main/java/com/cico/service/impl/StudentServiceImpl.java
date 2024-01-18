@@ -1240,13 +1240,12 @@ public class StudentServiceImpl implements IStudentService {
 		LocalDate today = LocalDate.now();
 		List<Object[]> result = studRepo.getTotalTodayAbsentStudent(today);
 		// List<Attendance> totalPresentToday = studRepo.getTotalPresentToday(today);
-		List<Student> absentStudents = new ArrayList<>();
+		List<StudentReponseForWeb> absentStudents = new ArrayList<>();
 		for (Object[] row : result) {
-			Student student = new Student();
+			StudentReponseForWeb student = new StudentReponseForWeb();
 			student.setFullName((String) row[0]);
 			student.setMobile((String) row[1]);
 			student.setProfilePic((String) row[2]);
-
 			student.setApplyForCourse((String) row[3]);
 			student.setStudentId((Integer) row[4]);
 			absentStudents.add(student);

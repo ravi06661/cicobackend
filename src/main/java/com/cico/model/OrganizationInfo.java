@@ -26,4 +26,6 @@ public class OrganizationInfo {
 	 String workingHours;
 	 String halfDayWorkingHour;
 	 LocalDateTime createdDate;
+	 String officeLatVj;
+	 String officeLongVj;
 }

@@ -72,5 +72,7 @@ public class AppConstants {
 	
 	public static final String  STATUS = "status";
 	
+	public static final String UPDATE_SUCCESSFULLY = "update successfylly";
+	
 	
 }

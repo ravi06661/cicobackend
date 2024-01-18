@@ -80,15 +80,18 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public ResponseEntity<?> updateChapter(Integer chapterId, String chapterName) throws Exception {
+		Map<String, Object>response = new  HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 
 		if (chapter.getChapterName().equals(chapterName.trim())) {
 			throw new Exception("Chapter already present with name..");
 		}
-
+ 
 		chapter.setChapterName(chapterName.trim());
-		return new ResponseEntity<>(chapterFilter(chapterRepo.save(chapter)), HttpStatus.OK);
+		chapterRepo.save(chapter);
+		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@Override

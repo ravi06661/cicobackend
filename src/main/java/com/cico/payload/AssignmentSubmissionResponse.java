@@ -18,4 +18,5 @@ public class AssignmentSubmissionResponse {
 	private String submitFile;
 	private String description;
 	private Long submissionId;
+	private String review;
 }

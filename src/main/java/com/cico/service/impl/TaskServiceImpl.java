@@ -312,7 +312,7 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	@Override
-	public List<Task> getAllTaskOfStudent(Integer studentId) {
+	public ResponseEntity<?> getAllTaskOfStudent(Integer studentId) {
 
 		Student student = studentRepository.findById(studentId).get();
 		List<Task> list = new ArrayList<>();
@@ -320,7 +320,8 @@ public class TaskServiceImpl implements ITaskService {
 		subjects.forEach(obj -> {
 			list.addAll(filterTasks(taskRepo.findBySubjectAndIsDeletedFalse(obj)));
 		});
-		return filterTasks(list);
+		//return filterTasks(list);
+		return ResponseEntity.ok(null);
 	}
 
 	@Override

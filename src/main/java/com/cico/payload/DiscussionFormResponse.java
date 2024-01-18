@@ -4,11 +4,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class DiscussionFormResponse {
 
 	private Integer id;
+	private String type;
 	private LocalDateTime createdDate;
 	private String content;
 	private Integer studentId;
@@ -21,5 +25,17 @@ public class DiscussionFormResponse {
 	private Boolean isLike;
 	private Boolean isCommented;
 	private String audioFile;
+	@Override
+	public String toString() {
+	    return "{\"id\":" + id + ", \"type\":\"" + type + "\", \"createdDate\":\"" + createdDate + "\", \"content\":\""
+	            + content + "\", \"studentId\":\"" + studentId + "\", \"studentName\":\"" + studentName
+	            + "\", \"studentProfilePic\":\"" + studentProfilePic + "\", \"file\":\"" + file
+	            + "\", \"courseName\":\"" + courseName + "\", \"likes\":" + likes + ", \"comments\":" + comments
+	            + ", \"isLike\":" + isLike + ", \"isCommented\":" + isCommented + ", \"audioFile\":\"" + audioFile
+	            + "\"}";
+	}
+
+	
+//	
 
 }

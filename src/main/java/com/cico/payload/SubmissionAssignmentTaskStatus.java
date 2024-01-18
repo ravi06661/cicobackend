@@ -14,4 +14,5 @@ public class SubmissionAssignmentTaskStatus {
 	private Integer reveiwed;
 	private Integer taskCount;
 	private String assignmentTitle;
+	private String description;
 }

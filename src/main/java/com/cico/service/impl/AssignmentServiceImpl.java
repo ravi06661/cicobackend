@@ -281,6 +281,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignmentTaskStatus.setTotalSubmitted((int) (long) objects[4]);
 			assignmentTaskStatus.setTaskCount((int) (long) objects[5]);
 			assignmentTaskStatus.setTaskId((Long) objects[6]);
+			
 			assignmentTaskStatusList.add(assignmentTaskStatus);
 		}
 		return ResponseEntity.ok(assignmentTaskStatusList);
@@ -650,7 +651,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			response.setSubmitFile(sub.getSubmitFile());
 			response.setDescription(sub.getDescription());
 			response.setStatus(sub.getStatus().toString());
-
+			response.setReview(sub.getReview());
+            
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
 			res.put("status", "no_found");
