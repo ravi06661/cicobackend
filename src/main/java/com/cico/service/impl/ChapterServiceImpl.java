@@ -274,8 +274,8 @@ public class ChapterServiceImpl implements IChapterService {
 		Optional<Chapter> chapter = chapterRepo.findById(chapterId);
 		Map<String, Object> response = new HashMap<>();
 
-		List<Question> questions = chapter.get().getExam().getQuestions();
-		
+		List<Question> questions = chapter.get().getExam().getQuestions().stream().filter(obj->obj.getIsDeleted() == false).collect(Collectors.toList());
+		   
 		if(questions.isEmpty()) {
 			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
 			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

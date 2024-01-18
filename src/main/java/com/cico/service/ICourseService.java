@@ -15,7 +15,7 @@ public interface ICourseService {
 
 	public ResponseEntity<?> getAllCourses(Integer page, Integer size);
 
-	public ApiResponse updateCourse(CourseResponse course);
+	public ApiResponse updateCourse(CourseRequest course);
 
 	public Boolean deleteCourseById(Integer courseId);
 
