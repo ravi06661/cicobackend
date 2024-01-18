@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @Controller
 @CrossOrigin("*")
 public class WebSocketController {
-	 @MessageMapping("/socket")
-	    @SendTo("/queue/messages")
-	    public String send(String message) {
-	        return message;
-	    }
+	@MessageMapping("/socket")
+	@SendTo("/queue/messages")
+	public String send(String message) {
+		System.out.println("------------------------");
+		return message;
+	}
 }

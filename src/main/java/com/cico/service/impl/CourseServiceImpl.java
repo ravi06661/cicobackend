@@ -93,18 +93,22 @@ public class CourseServiceImpl implements ICourseService {
 
 			//subject filter
 			List<SubjectResponse>subjectResponses =  new ArrayList<>();
-			course.getSubjects().stream().filter(obj->{
+			course.getSubjects().stream().map(obj->{
 				
-				SubjectResponse res1 = new SubjectResponse();
-				res1.setSubjectId(obj.getSubjectId());
-				res1.setSubjectName(obj.getSubjectName());
-				TechnologyStackResponse  stackResponse  = new TechnologyStackResponse();
-				stackResponse.setId(obj.getTechnologyStack().getId());
-				stackResponse.setImageName(obj.getTechnologyStack().getImageName());
-				stackResponse.setTechnologyName(obj.getTechnologyStack().getTechnologyName());
-				res1.setTechnologyStack(stackResponse);
-				subjectResponses.add(res1);
-				return res1!=null;
+				if(!obj.getIsDeleted()) {
+					SubjectResponse res1 = new SubjectResponse();
+					res1.setSubjectId(obj.getSubjectId());
+					res1.setSubjectName(obj.getSubjectName());
+					TechnologyStackResponse  stackResponse  = new TechnologyStackResponse();
+					stackResponse.setId(obj.getTechnologyStack().getId());
+					stackResponse.setImageName(obj.getTechnologyStack().getImageName());
+					stackResponse.setTechnologyName(obj.getTechnologyStack().getTechnologyName());
+					res1.setTechnologyStack(stackResponse);
+					subjectResponses.add(res1);
+					return res1;
+				}
+				return null;
+					
 			}).collect(Collectors.toList());
 			
 			List<BatchResponse>batchResponses = new ArrayList<>();

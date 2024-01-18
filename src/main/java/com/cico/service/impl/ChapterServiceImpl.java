@@ -21,10 +21,8 @@ import com.cico.model.Exam;
 import com.cico.model.Question;
 import com.cico.model.Subject;
 import com.cico.payload.ChapterContentResponse;
-import com.cico.payload.ChapterExamResultResponse;
 import com.cico.payload.ChapterResponse;
 import com.cico.payload.QuestionResponse;
-import com.cico.payload.StudentReponseForWeb;
 import com.cico.repository.ChapterContentRepository;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
@@ -48,7 +46,7 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Autowired
 	FileServiceImpl fileServiceImpl;
-
+             
 	@Override
 	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) throws Exception {
 		Chapter obj = chapterRepo.findByChapterNameAndIsDeleted(chapterName, false);
@@ -82,15 +80,18 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public ResponseEntity<?> updateChapter(Integer chapterId, String chapterName) throws Exception {
+		Map<String, Object>response = new  HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 
 		if (chapter.getChapterName().equals(chapterName.trim())) {
 			throw new Exception("Chapter already present with name..");
 		}
-
+ 
 		chapter.setChapterName(chapterName.trim());
-		return new ResponseEntity<>(chapterFilter(chapterRepo.save(chapter)), HttpStatus.OK);
+		chapterRepo.save(chapter);
+		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@Override
@@ -279,7 +280,7 @@ public class ChapterServiceImpl implements IChapterService {
 			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
 			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 		}
-		
+		     
 		List<QuestionResponse> list = questions.parallelStream().map(obj -> questionFilter(obj))
 				.collect(Collectors.toList());
 		

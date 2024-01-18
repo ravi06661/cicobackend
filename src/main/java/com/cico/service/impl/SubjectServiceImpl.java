@@ -86,13 +86,18 @@ public class SubjectServiceImpl implements ISubjectService {
 		subRepo.save(subject);
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public ResponseEntity<?> updateSubject(SubjectResponse subjectResponse) throws Exception {
+	
 		subRepo.findBySubjectIdAndIsDeleted(subjectResponse.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-
+	
 		Subject sub = subRepo.findBySubjectNameAndIsDeleted(subjectResponse.getSubjectName().trim());
-		if (Objects.nonNull(sub)) {
+		
+		if (Objects.nonNull(sub)
+				&& Objects.equals(subjectResponse.getTechnologyStack().getId(), sub.getTechnologyStack().getId())) {
+
 			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
 		}
 		Optional<Subject> findById = subRepo.findById(subjectResponse.getSubjectId());

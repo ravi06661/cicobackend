@@ -54,9 +54,9 @@ public class TaskController {
 		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
 	}
 	@GetMapping("/getAllTaskOfStudent") 
-	public ResponseEntity<List<Task>> getAllTaskOfStudent(@RequestParam("studentId")Integer studentId) {
-		List<Task> tasks = taskService.getAllTaskOfStudent(studentId);
-		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+	public ResponseEntity<?> getAllTaskOfStudent(@RequestParam("studentId")Integer studentId) {
+		return taskService.getAllTaskOfStudent(studentId);
+		
 	}
 
 	@PostMapping("/studentTaskSubmittion")

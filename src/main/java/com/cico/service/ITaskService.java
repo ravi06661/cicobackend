@@ -40,7 +40,7 @@ public interface ITaskService {
 
 	ResponseEntity<?> getOverAllTaskStatusforBarChart();
 
-	List<Task> getAllTaskOfStudent(Integer studentId);
+	ResponseEntity<?> getAllTaskOfStudent(Integer studentId);
 
 	ResponseEntity<?> isTaskSubmitted(Long taskId, Integer studentId);
 

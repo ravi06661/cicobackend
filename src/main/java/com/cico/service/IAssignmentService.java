@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Assignment;
-import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 
@@ -42,9 +41,11 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAllLockedAndUnlockedAssignment(Integer studentId);
 
-	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId, Integer studentId);
+	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Integer studentId);
 
 	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId,Integer subjectId);
+
+	ResponseEntity<?> getSubmittedAssignmentBySubmissionId(Long submissionId);
 
 }
 

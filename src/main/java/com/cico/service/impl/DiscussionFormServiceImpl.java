@@ -15,9 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.controller.WebSocketController;
 import com.cico.model.CommentReply;
 import com.cico.model.DiscussionFormComment;
 import com.cico.model.DiscusssionForm;
@@ -59,6 +64,9 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	private SimpMessageSendingOperations messageSendingOperations;
 
 	@Override
 	public ResponseEntity<?> createDiscussionForm(Integer studentId, MultipartFile file, String content,
@@ -83,12 +91,32 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			}
 
 			DiscusssionForm save = discussionFormRepo.save(discusssionForm);
+			DiscussionFormResponse  response = new DiscussionFormResponse();
+			response.setAudioFile(save.getAudioFile());
+			 
+			response.setComments(save.getComments().stream().map(obj-> getCommentFilter(obj)).collect(Collectors.toList()));
+			response.setContent(content);
+			response.setCreatedDate(save.getCreatedDate());
+			response.setFile(save.getFile());
+	         response.setIsCommented(save.getComments().stream()
+			.anyMatch(obj -> obj.getStudent().getStudentId() == studentId));
+			response.setId(save.getId());
+		     response.setType("createDiscussionForm");
+		     response.setStudentProfilePic(save.getStudent().getProfilePic());
+		     response.setStudentName(save.getStudent().getFullName());
+		     sendMessageManually("/queue/messages",response.toString());
+
 			return new ResponseEntity<>(discussionFormFilter(save), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
+	    // Method to send a message manually
+	    public void sendMessageManually(String destination, String message) {
+	    	messageSendingOperations.convertAndSend("/queue/messages", message);	    }
+	    
+	
 	@Override
 	public ResponseEntity<?> createComment(Integer studentId, String content, Integer discussionFormId,
 			MultipartFile file) {

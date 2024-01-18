@@ -27,6 +27,8 @@ import com.cico.model.TaskSubmission;
 import com.cico.payload.SubmissionAssignmentTaskStatus;
 import com.cico.payload.TaskFilterRequest;
 import com.cico.payload.TaskRequest;
+import com.cico.payload.TaskSubmissionResponse;
+import com.cico.repository.CourseRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TaskQuestionRepository;
@@ -66,6 +68,8 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Autowired
 	private TaskSubmissionRepository taskSubmissionRepository;
+	@Autowired
+	private CourseRepository courseRepository;
 
 	@Override
 	public Task createTask(TaskRequest taskRequest) {
@@ -96,19 +100,17 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public List<Task> getFilteredTasks(TaskFilterRequest taskFilter) {
-//		Example<Task> example = null;
-//
-//		Course course = courseService.findCourse(taskFilter.getCourseId());
-//		Subject subject = subjectRepo.findById(taskFilter.getSubjectId()).get();
-//
-//		Task task = new Task();
-//		task.setCourse(course);
-//		task.setSubject(subject);
-//		task.setIsDeleted(taskFilter.getStatus());
-//		example = Example.of(task);
-//		return filterTasks(taskRepo.findAll(example));
-		return null;
+		Example<Task> example = null;
 
+		Course course = courseRepository.findByCourseIdAndIsDeleted(taskFilter.getCourseId(),false);
+		Subject subject = subjectRepo.findById(taskFilter.getSubjectId()).get();
+
+		Task task = new Task();
+		task.setCourse(course);
+		task.setSubject(subject);
+		task.setIsDeleted(taskFilter.getStatus());
+		example = Example.of(task);
+		return filterTasks(taskRepo.findAll(example));
 
 	}
 
@@ -203,7 +205,10 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public ResponseEntity<?> getAllSubmitedTasks() {
-		return new ResponseEntity<>(taskSubmissionRepository.findAll(), HttpStatus.OK);
+		
+		return new ResponseEntity<>(
+				taskSubmissionRepository.findAll().stream().map(obj -> taskResponse(obj)).collect(Collectors.toList()),
+				HttpStatus.OK);
 	}
 
 	public ResponseEntity<?> getAllSubmissionTaskStatus() {
@@ -307,7 +312,7 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	@Override
-	public List<Task> getAllTaskOfStudent(Integer studentId) {
+	public ResponseEntity<?> getAllTaskOfStudent(Integer studentId) {
 
 		Student student = studentRepository.findById(studentId).get();
 		List<Task> list = new ArrayList<>();
@@ -315,7 +320,8 @@ public class TaskServiceImpl implements ITaskService {
 		subjects.forEach(obj -> {
 			list.addAll(filterTasks(taskRepo.findBySubjectAndIsDeletedFalse(obj)));
 		});
-		return filterTasks(list);
+		//return filterTasks(list);
+		return ResponseEntity.ok(null);
 	}
 
 	@Override
@@ -345,5 +351,23 @@ public class TaskServiceImpl implements ITaskService {
 		task.setTaskQuestion(task.getTaskQuestion().parallelStream().filter(obj -> !obj.getIsDeleted())
 				.collect(Collectors.toList()));
 		return task;
+	}
+
+	public TaskSubmissionResponse taskResponse(TaskSubmission submission) {
+
+		TaskSubmissionResponse response = new TaskSubmissionResponse();
+		response.setId(submission.getId());
+		response.setReview(submission.getReview());
+		response.setStatus(submission.getStatus().toString());
+		response.setTaskDescription(submission.getTaskDescription());
+		response.setTaskName(submission.getTaskName());
+		response.setTaskId(submission.getTaskId());
+		response.setSubmittionFileName(submission.getSubmittionFileName());
+		response.setSubmissionDate(submission.getSubmissionDate());
+        response.setStudentProfilePic(submission.getStudent().getProfilePic());
+        response.setStudentId(submission.getStudent().getStudentId());
+        response.setFullName(submission.getStudent().getFullName());
+        response.setApplyForCoure(submission.getStudent().getApplyForCourse());
+		return response;
 	}
 }
