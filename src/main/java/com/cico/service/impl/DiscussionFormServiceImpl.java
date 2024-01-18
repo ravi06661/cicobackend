@@ -10,19 +10,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.controller.WebSocketController;
+import com.cico.config.CommentResponseConfig;
 import com.cico.model.CommentReply;
 import com.cico.model.DiscussionFormComment;
 import com.cico.model.DiscusssionForm;
@@ -63,9 +59,6 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 	private CommentReplyRepo commentReplyRepo;
 
 	@Autowired
-	private ModelMapper modelMapper;
-	
-	@Autowired
 	private SimpMessageSendingOperations messageSendingOperations;
 
 	@Override
@@ -90,33 +83,35 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				discusssionForm.setAudioFile(savedFile);
 			}
 
+			/// sending response to socket /////////////////////////////////
 			DiscusssionForm save = discussionFormRepo.save(discusssionForm);
-			DiscussionFormResponse  response = new DiscussionFormResponse();
+			DiscussionFormResponse response = new DiscussionFormResponse();
 			response.setAudioFile(save.getAudioFile());
-			 
-			response.setComments(save.getComments().stream().map(obj-> getCommentFilter(obj)).collect(Collectors.toList()));
+			response.setComments(
+					save.getComments().stream().map(obj -> getCommentFilter(obj)).collect(Collectors.toList()));
 			response.setContent(content);
 			response.setCreatedDate(save.getCreatedDate());
 			response.setFile(save.getFile());
-	         response.setIsCommented(save.getComments().stream()
-			.anyMatch(obj -> obj.getStudent().getStudentId() == studentId));
+			response.setIsCommented(
+					save.getComments().stream().anyMatch(obj -> obj.getStudent().getStudentId() == studentId));
 			response.setId(save.getId());
-		     response.setType("createDiscussionForm");
-		     response.setStudentProfilePic(save.getStudent().getProfilePic());
-		     response.setStudentName(save.getStudent().getFullName());
-		     sendMessageManually("/queue/messages",response.toString());
+			response.setType("createDiscussionForm");
+			response.setStudentProfilePic(save.getStudent().getProfilePic());
+			response.setStudentName(save.getStudent().getFullName());
+			response.setAudioFile(save.getAudioFile());
+			response.setLikes(new ArrayList<>());
 
-			return new ResponseEntity<>(discussionFormFilter(save), HttpStatus.OK);
+			sendMessageManually(response.toString());
+
+			// sending back to requested //////////////
+			DiscussionFormResponse discussionFormFilter = discussionFormFilter(save);
+
+			return new ResponseEntity<>(discussionFormFilter, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
-	    // Method to send a message manually
-	    public void sendMessageManually(String destination, String message) {
-	    	messageSendingOperations.convertAndSend("/queue/messages", message);	    }
-	    
-	
 	@Override
 	public ResponseEntity<?> createComment(Integer studentId, String content, Integer discussionFormId,
 			MultipartFile file) {
@@ -142,19 +137,69 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				discussionForm.get().setComments(comments);
 				discussionFormRepo.save(discussionForm.get());
 			}
+
+			// sending response to the socket
+			CommentResponseConfig res = new CommentResponseConfig();
+			res.setCreatedDate(savedComment.getCreatedDate());
+			res.setContent(savedComment.getContent());
+			res.setDiscussionFormId(discussionFormId);
+			res.setFile(savedComment.getFile());
+			res.setType("commentResponse");
+			res.setStudentProfilePic(savedComment.getStudent().getProfilePic());
+			res.setStudentId(savedComment.getStudent().getStudentId());
+			res.setId(savedComment.getId());
+			res.setStudentName(savedComment.getStudent().getFullName());
+			sendMessageManually(res.toString());
 			return new ResponseEntity<>(getCommentFilter(savedComment), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
+	// Method to send a message manually
+
+//	@Override
+//	public ResponseEntity<?> createComment(Integer studentId, String content, Integer discussionFormId,
+//			MultipartFile file) {
+//		Student student = studentRepository.findById(studentId).get();
+//		Optional<DiscusssionForm> discussionForm = discussionFormRepo.findById(discussionFormId);
+//		if (Objects.nonNull(student) && !content.equals("")) {
+//			if (discussionForm.get().getComments().stream()
+//					.anyMatch(obj -> obj.getStudent().getStudentId() == studentId)) {
+//				return new ResponseEntity<>("ALREADY_COMMENTED", HttpStatus.OK);
+//			
+//			DiscussionFormComment comment = new DiscussionFormComment();
+//			comment.setCreatedDate(LocalDateTime.now());
+//			comment.setContent(content);
+//			comment.setStudent(student);
+//			if (Objects.nonNull(file) && !file.isEmpty()) {
+//				String savedFile = fileService.uploadFileInFolder(file, FILE_UPLAOD_DIR);
+//				comment.setFile(savedFile);
+//			}
+//			DiscussionFormComment savedComment = discussionFormCommentRepo.save(comment);
+//			if (Objects.nonNull(discussionForm)) {
+//				List<DiscussionFormComment> comments = discussionForm.get().getComments();
+//				comments.add(savedComment);
+//				discussionForm.get().setComments(comments);
+//				discussionFormRepo.save(discussionForm.get());
+//			}
+//
+//			// sending message to socket
+//			
+//			/// sending message to api request ////
+//			return new ResponseEntity<>(getCommentFilter(savedComment), HttpStatus.OK);
+//		} else {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
+//	
+//	}
 
 	@Override
 	public ResponseEntity<?> getAllDiscussionForm(Integer studentId) {
 		List<DiscusssionForm> list = discussionFormRepo.findAll();
-		Map<String ,Object>response = new HashMap<>();
+		Map<String, Object> response = new HashMap<>();
 		if (list.isEmpty()) {
 			response.put("response", list);
-			return new ResponseEntity<>(response,HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
 			List<DiscussionFormResponse> response1 = new ArrayList<>();
 			if (Objects.nonNull(studentId)) {
@@ -178,9 +223,9 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				Collections.reverse(obj.getComments());
 				return obj != null;
 			}).collect(Collectors.toList());
-		
+
 			response.put("response", collect);
-			return new ResponseEntity<>( response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 
@@ -188,7 +233,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 	public ResponseEntity<?> getDiscussionFormById(Integer id, Integer studentId) {
 		Optional<DiscusssionForm> object = discussionFormRepo.findById(id);
 		if (Objects.isNull(object)) {
-			return new ResponseEntity<>("DISCUSSION_FORM_NOT_FOUND",HttpStatus.OK);
+			return new ResponseEntity<>("DISCUSSION_FORM_NOT_FOUND", HttpStatus.OK);
 		} else {
 			DiscussionFormResponse res = discussionFormFilter(object.get());
 			res.likes.forEach(obj -> {
@@ -219,6 +264,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				DiscusssionForm save = discussionFormRepo.save(form);
 				DiscussionFormResponse obj1 = discussionFormFilter(save);
 				obj1.setIsLike(true);
+
 				return new ResponseEntity<>(obj1, HttpStatus.OK);
 			} else {
 				form.setLikes(likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() != studentId)
@@ -227,6 +273,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				likeRepo.delete(like);
 				DiscussionFormResponse obj1 = discussionFormFilter(form2);
 				obj1.setIsLike(false);
+
 				return new ResponseEntity<>(obj1, HttpStatus.OK);
 			}
 		}
@@ -252,7 +299,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		if (Objects.nonNull(obj.getLikes())) {
 			obj.getLikes().forEach(obj1 -> {
 				LikeResponse likeResponse = new LikeResponse();
-				// likeResponse.setCreatedDate(obj1.getCreatedDate());
+				likeResponse.setCreatedDate(obj1.getCreatedDate());
 				likeResponse.setStudentName(obj1.getStudent().getFullName());
 				likeResponse.setStudentProfilePic(obj1.getStudent().getProfilePic());
 				likeResponse.setId(obj1.getId());
@@ -265,7 +312,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			obj.getComments().forEach(obj2 -> {
 				List<CommentReplyResponse> commentReplyResponses = new ArrayList<>();
 				CommentResponse commentResponse = new CommentResponse();
-				commentResponse.setCreatedDate(obj2.getCreatedDate());
+				// commentResponse.setCreatedDate(obj2.getCreatedDate());
 				commentResponse.setStudentName(obj2.getStudent().getFullName());
 				commentResponse.setStudentProfilePic(obj2.getStudent().getProfilePic());
 				commentResponse.setId(obj2.getId());
@@ -334,6 +381,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		}
 
 	}
+
 	public CommentResponse getCommentFilter(DiscussionFormComment obj2) {
 		CommentResponse commentResponse = new CommentResponse();
 		commentResponse.setCreatedDate(obj2.getCreatedDate());
@@ -365,7 +413,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		Optional<Student> student = studentRepository.findById(studentId);
 		Optional<DiscussionFormComment> commentsForm = discussionFormCommentRepo.findById(commentsId);
 		if (Objects.nonNull(commentsForm) && Objects.nonNull(student)) {
-			CommentReply obj = new CommentReply();              
+			CommentReply obj = new CommentReply();
 			obj.setContent(content);
 			obj.setCreatedDate(LocalDateTime.now());
 			obj.setStudent(student.get());
@@ -395,4 +443,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		return obj;
 	}
 
+	public void sendMessageManually(String message) {
+		messageSendingOperations.convertAndSend("/queue/Chatmessages", message);
+	}
 }
