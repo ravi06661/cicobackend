@@ -1,8 +1,10 @@
 package com.cico.service.impl;
 
+import java.sql.Array;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import com.cico.model.Course;
 import com.cico.model.Student;
 import com.cico.model.Subject;
+import com.cico.model.TechnologyStack;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.BatchResponse;
 import com.cico.payload.CourseRequest;
@@ -81,87 +84,83 @@ public class CourseServiceImpl implements ICourseService {
 	@Override
 	public CourseResponse findCourseById(Integer courseId) {
 
-		 Course course = courseRepository.findByCourseIdAndIsDeleted(courseId, false);
-		 CourseResponse res = new CourseResponse();
+		Course course = courseRepository.findByCourseIdAndIsDeleted(courseId, false);
+		CourseResponse res = new CourseResponse();
 
-			res.setCourseId(course.getCourseId());
-			res.setCourseName(course.getCourseName());
-			res.setCourseFees(course.getCourseFees());
-			res.setSortDescription(course.getSortDescription());
-			res.setDuration(course.getDuration());
-			res.setIsStarterCourse(course.getIsStarterCourse());
+		res.setCourseId(course.getCourseId());
+		res.setCourseName(course.getCourseName());
+		res.setCourseFees(course.getCourseFees());
+		res.setSortDescription(course.getSortDescription());
+		res.setDuration(course.getDuration());
+		res.setIsStarterCourse(course.getIsStarterCourse());
 
-			//subject filter
-			List<SubjectResponse>subjectResponses =  new ArrayList<>();
-			course.getSubjects().stream().map(obj->{
-				
-				if(!obj.getIsDeleted()) {
-					SubjectResponse res1 = new SubjectResponse();
-					res1.setSubjectId(obj.getSubjectId());
-					res1.setSubjectName(obj.getSubjectName());
-					TechnologyStackResponse  stackResponse  = new TechnologyStackResponse();
-					stackResponse.setId(obj.getTechnologyStack().getId());
-					stackResponse.setImageName(obj.getTechnologyStack().getImageName());
-					stackResponse.setTechnologyName(obj.getTechnologyStack().getTechnologyName());
-					res1.setTechnologyStack(stackResponse);
-					subjectResponses.add(res1);
-					return res1;
-				}
-				return null;
-					
-			}).collect(Collectors.toList());
-			
-			List<BatchResponse>batchResponses = new ArrayList<>();
-			
-			
-			
-			course.getBatches().forEach(obj->{
+		// subject filter
+		List<SubjectResponse> subjectResponses = new ArrayList<>();
+		course.getSubjects().stream().map(obj -> {
 
-				
-				 if(!obj.isDeleted()) {
-					 BatchResponse  batchResponse = new BatchResponse();
-					 
-					 batchResponse.setBatchId(obj.getBatchId());
-					 batchResponse.setBatchName(obj.getBatchName());
-					 batchResponse.setBatchStartDate(obj.getBatchStartDate());
-					 batchResponse.setBatchTiming(obj.getBatchTiming());
-					 batchResponse.setBatchDetails(obj.getBatchDetails());
-					 
-					 SubjectResponse response =   new SubjectResponse();
-					 
-					 response.setSubjectId(obj.getSubject().getSubjectId());
-					 response.setSubjectName(obj.getSubject().getSubjectName());
-					 
-					
-					 
-					 TechnologyStackResponse stackResponse = new TechnologyStackResponse();
-					 stackResponse.setId(obj.getSubject().getTechnologyStack().getId());
-					 stackResponse.setImageName(obj.getSubject().getTechnologyStack().getImageName());
-					 stackResponse.setTechnologyName(obj.getSubject().getTechnologyStack().getTechnologyName());
-					 
-					 response.setTechnologyStack(stackResponse);
-					 batchResponse.setSubject(response);
-					 
-					 batchResponses.add(batchResponse);
-				 }
-			 	
-			});
-			
-			TechnologyStackResponse  stackResponse  = new TechnologyStackResponse();
-		     stackResponse.setId(course.getTechnologyStack().getId());
-			 stackResponse.setImageName(course.getTechnologyStack().getImageName());
-			 stackResponse.setTechnologyName(course.getTechnologyStack().getTechnologyName());	
-			 
-			 res.setBatchesCount((long)batchResponses.size());
-			 res.setSubjectCount((long)subjectResponses.size());
-			 res.setBatchResponse(batchResponses);
-			 res.setSubjectResponse(subjectResponses);
-			 
-			 TechnologyStackResponse stackResponse2 = new  TechnologyStackResponse();
-			 stackResponse2.setId(course.getTechnologyStack().getId());
-			 stackResponse2.setImageName(course.getTechnologyStack().getImageName());;
-			 stackResponse2.setTechnologyName(course.getTechnologyStack().getTechnologyName());
-			 res.setTechnologyStack(stackResponse2);
+			if (!obj.getIsDeleted()) {
+				SubjectResponse res1 = new SubjectResponse();
+				res1.setSubjectId(obj.getSubjectId());
+				res1.setSubjectName(obj.getSubjectName());
+				TechnologyStackResponse stackResponse = new TechnologyStackResponse();
+				stackResponse.setId(obj.getTechnologyStack().getId());
+				stackResponse.setImageName(obj.getTechnologyStack().getImageName());
+				stackResponse.setTechnologyName(obj.getTechnologyStack().getTechnologyName());
+				res1.setTechnologyStack(stackResponse);
+				subjectResponses.add(res1);
+				return res1;
+			}
+			return null;
+
+		}).collect(Collectors.toList());
+
+		List<BatchResponse> batchResponses = new ArrayList<>();
+
+		course.getBatches().forEach(obj -> {
+
+			if (!obj.isDeleted()) {
+				BatchResponse batchResponse = new BatchResponse();
+
+				batchResponse.setBatchId(obj.getBatchId());
+				batchResponse.setBatchName(obj.getBatchName());
+				batchResponse.setBatchStartDate(obj.getBatchStartDate());
+				batchResponse.setBatchTiming(obj.getBatchTiming());
+				batchResponse.setBatchDetails(obj.getBatchDetails());
+
+				SubjectResponse response = new SubjectResponse();
+
+				response.setSubjectId(obj.getSubject().getSubjectId());
+				response.setSubjectName(obj.getSubject().getSubjectName());
+
+				TechnologyStackResponse stackResponse = new TechnologyStackResponse();
+				stackResponse.setId(obj.getSubject().getTechnologyStack().getId());
+				stackResponse.setImageName(obj.getSubject().getTechnologyStack().getImageName());
+				stackResponse.setTechnologyName(obj.getSubject().getTechnologyStack().getTechnologyName());
+
+				response.setTechnologyStack(stackResponse);
+				batchResponse.setSubject(response);
+
+				batchResponses.add(batchResponse);
+			}
+
+		});
+
+		TechnologyStackResponse stackResponse = new TechnologyStackResponse();
+		stackResponse.setId(course.getTechnologyStack().getId());
+		stackResponse.setImageName(course.getTechnologyStack().getImageName());
+		stackResponse.setTechnologyName(course.getTechnologyStack().getTechnologyName());
+
+		res.setBatchesCount((long) batchResponses.size());
+		res.setSubjectCount((long) subjectResponses.size());
+		res.setBatchResponse(batchResponses);
+		res.setSubjectResponse(subjectResponses);
+
+		TechnologyStackResponse stackResponse2 = new TechnologyStackResponse();
+		stackResponse2.setId(course.getTechnologyStack().getId());
+		stackResponse2.setImageName(course.getTechnologyStack().getImageName());
+		;
+		stackResponse2.setTechnologyName(course.getTechnologyStack().getTechnologyName());
+		res.setTechnologyStack(stackResponse2);
 		return res;
 	}
 
@@ -220,15 +219,24 @@ public class CourseServiceImpl implements ICourseService {
 	}
 
 	@Override
-	public ApiResponse updateCourse(CourseResponse course) {
-//           CourseRequest
-//		Course save = courseRepository.save(course);
-//
-//		if (Objects.nonNull(save))
-//			return new ApiResponse(Boolean.TRUE, COURSE_UPDATE_SUCCESS, HttpStatus.CREATED);
-//		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
-		return null;
-		
+	public ApiResponse updateCourse(CourseRequest course) {
+
+		Course course1 = courseRepository.findById(course.getCourseId()).get();
+		course1.setCourseName(course.getCourseName());
+		course1.setCourseFees(course.getCourseFees());
+		course1.setDuration(course.getDuration());
+		course1.setSortDescription(course.getSortDescription());
+		course1.setIsStarterCourse(course.getIsStarterCourse());
+
+		Optional<TechnologyStack> findById = repository.findById(course.getTechnologyStack());
+		course1.setTechnologyStack(findById.get());
+		course1.getSubjects().addAll(subjectRepository.findAllById(course.getSubjectIds()));
+		Course save = courseRepository.save(course1);
+
+		if (Objects.nonNull(save))
+			return new ApiResponse(Boolean.TRUE, COURSE_UPDATE_SUCCESS, HttpStatus.CREATED);
+		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
+
 	}
 
 	@Override
