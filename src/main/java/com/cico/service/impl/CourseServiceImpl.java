@@ -230,7 +230,7 @@ public class CourseServiceImpl implements ICourseService {
 
 		Optional<TechnologyStack> findById = repository.findById(course.getTechnologyStack());
 		course1.setTechnologyStack(findById.get());
-		course1.getSubjects().addAll(subjectRepository.findAllById(course.getSubjectIds()));
+		course1.setSubjects(subjectRepository.findAllById(course.getSubjectIds()));
 		Course save = courseRepository.save(course1);
 
 		if (Objects.nonNull(save))

@@ -178,6 +178,7 @@ public class SubjectServiceImpl implements ISubjectService {
 			TechnologyStackResponse technologyStackResponse = new TechnologyStackResponse();
 			technologyStackResponse.setImageName((String) row[3]);
 			technologyStackResponse.setTechnologyName((String) row[2]);
+			technologyStackResponse.setId((Integer)row[5]);
 			response.setTechnologyStack(technologyStackResponse);
 
 			list.add(response);
