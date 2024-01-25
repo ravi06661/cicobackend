@@ -89,12 +89,12 @@ public class SubjectServiceImpl implements ISubjectService {
 	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public ResponseEntity<?> updateSubject(SubjectResponse subjectResponse) throws Exception {
-	
+
 		subRepo.findBySubjectIdAndIsDeleted(subjectResponse.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-	
+
 		Subject sub = subRepo.findBySubjectNameAndIsDeleted(subjectResponse.getSubjectName().trim());
-		
+
 		if (Objects.nonNull(sub)
 				&& Objects.equals(subjectResponse.getTechnologyStack().getId(), sub.getTechnologyStack().getId())) {
 
@@ -178,7 +178,7 @@ public class SubjectServiceImpl implements ISubjectService {
 			TechnologyStackResponse technologyStackResponse = new TechnologyStackResponse();
 			technologyStackResponse.setImageName((String) row[3]);
 			technologyStackResponse.setTechnologyName((String) row[2]);
-			technologyStackResponse.setId((Integer)row[5]);
+			technologyStackResponse.setId((Integer) row[5]);
 			response.setTechnologyStack(technologyStackResponse);
 
 			list.add(response);
@@ -229,7 +229,7 @@ public class SubjectServiceImpl implements ISubjectService {
 		List<Object[]> allChapterWithSubjectId = subRepo.getAllChapterWithSubjectId(subjectId);
 		Map<String, Object> response = new HashMap<>();
 
-		if (!allChapterWithSubjectId.isEmpty()  && allChapterWithSubjectId.get(0)[3]!=(null)) {
+		if (!allChapterWithSubjectId.isEmpty() && allChapterWithSubjectId.get(0)[3] != (null)) {
 			List<ChapterResponse> chapterResponses = new ArrayList<>();
 			for (Object[] row : allChapterWithSubjectId) {
 				ChapterResponse chapterResponse = new ChapterResponse();
@@ -242,12 +242,25 @@ public class SubjectServiceImpl implements ISubjectService {
 			}
 			response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
 			response.put("chapters", chapterResponses);
-			
+
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
 			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
 			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 		}
 
+	}
+
+	@Override
+	public ResponseEntity<?> getAllSubjectsByCourseId(Integer courseId) {
+		List<SubjectResponse> list = subRepo.getAllSubjectByCourseId(courseId);
+		Map<String, Object> response = new HashMap<>();
+		if (list.isEmpty()) {
+			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
+			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
+		response.put("subjects", list);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

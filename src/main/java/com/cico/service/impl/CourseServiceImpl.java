@@ -233,8 +233,11 @@ public class CourseServiceImpl implements ICourseService {
 		course1.setSubjects(subjectRepository.findAllById(course.getSubjectIds()));
 		Course save = courseRepository.save(course1);
 
-		if (Objects.nonNull(save))
+		if (Objects.nonNull(save)) {
+			
 			return new ApiResponse(Boolean.TRUE, COURSE_UPDATE_SUCCESS, HttpStatus.CREATED);
+			
+		}
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 
 	}
