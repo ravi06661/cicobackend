@@ -42,10 +42,10 @@ public class AssigmentController {
 			@RequestParam(value = "attachment" ,required = false) MultipartFile attachment) {
 		return this.service.addAssignment(assignmentId, attachment);
 	}
-
+	
 	@GetMapping("/getAssignment")
 	public ResponseEntity<Assignment> getAssigment(@RequestParam("assignmentId") Long id) {
-		Assignment assignment = service.getAssignment(id);
+		Assignment assignment = service.getAssignment(id);  // 
 		return ResponseEntity.ok(assignment);
 	}
 
