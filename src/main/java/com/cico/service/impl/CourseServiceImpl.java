@@ -251,16 +251,25 @@ public class CourseServiceImpl implements ICourseService {
 	}
 
 	@Override
-	public ApiResponse studentUpgradeCourse(Integer studnetId, Integer courseId) {
+	public Map<String,Object> studentUpgradeCourse(Integer studnetId, Integer courseId) {
+		Map<String,Object> response=new HashMap<>();
 		Student findByStudentId = studentRepository.findByStudentId(studnetId);
 		Optional<Course> findByCourseId = courseRepository.findByCourseId(courseId);
 		findByCourseId.get().setCourseFees(findByStudentId.getCourse().getCourseFees());
 		findByStudentId.setApplyForCourse(findByCourseId.get().getCourseName());
 		findByStudentId.setCourse(findByCourseId.get());
 		Student save = studentRepository.save(findByStudentId);
-		if (Objects.nonNull(save))
-			return new ApiResponse(Boolean.TRUE, COURSE_UPGRADE_SUCCESS, HttpStatus.CREATED);
-		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
+		
+		
+		CourseResponse courseResponse=new CourseResponse();
+		courseResponse.setCourseId(findByCourseId.get().getCourseId());
+		courseResponse.setCourseName(findByCourseId.get().getCourseName());
+//		if (Objects.nonNull(save))
+//			return new ApiResponse(Boolean.TRUE, COURSE_UPGRADE_SUCCESS, HttpStatus.CREATED);
+//		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK)
+         response.put("course", courseResponse);
+        
+		return response;
 	}
 
 	@Override
@@ -333,6 +342,34 @@ public class CourseServiceImpl implements ICourseService {
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 
+	}
+	@Override
+	public ResponseEntity<?> getAllStarterCourses() {
+		// TODO Auto-generated method stub
+		List<Object[]> allNonStarterCourses = courseRepository.getAllStarterCourses();
+		List<CourseResponse> list = new ArrayList<>();
+		Map<String, Object> response = new HashMap<>();
+
+		if (Objects.isNull(allNonStarterCourses)) {
+
+			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
+			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+
+		} else {
+			for (Object[] row : allNonStarterCourses) {
+				CourseResponse res = new CourseResponse();
+				res.setCourseId((Integer) row[0]);
+				res.setCourseName((String) row[1]);
+				TechnologyStackResponse stackResponse = new TechnologyStackResponse();
+				stackResponse.setId((Integer) row[3]);
+				stackResponse.setImageName((String) row[2]);
+				res.setTechnologyStack(stackResponse);
+				list.add(res);
+			}
+			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+			response.put("NonStarterCourse", list);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
 	}
 
 }

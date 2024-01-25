@@ -65,7 +65,6 @@ public class StudentController {
 	public ResponseEntity<Student> updateStudent(@RequestBody Student student) {
 		Student updateStudent = studentService.updateStudent(student);
 		return new ResponseEntity<Student>(updateStudent, HttpStatus.OK);
-
 	}
 
 	@PostMapping("/studentDeviceIdApprovalApi") // for request

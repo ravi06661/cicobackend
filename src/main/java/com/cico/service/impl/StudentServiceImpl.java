@@ -1909,12 +1909,13 @@ public class StudentServiceImpl implements IStudentService {
 		// response.setInUseDeviceId(student.getInUseDeviceId());
 		response.setProfilePic(student.getProfilePic());
 		response.setCurrentCourse(student.getCurrentCourse());
-
-		course.setCourseFees(student.getCourse().getCourseFees());
-		course.setCourseId(student.getCourse().getCourseId());
-		course.setCourseName(student.getCourse().getCourseName());
+		response.setEmail(student.getEmail());
+		if(Objects.nonNull(student.getCourse())) {
+			course.setCourseFees(student.getCourse().getCourseFees());
+			course.setCourseId(student.getCourse().getCourseId());
+			course.setCourseName(student.getCourse().getCourseName());
+		}
 		response.setCourseResponse(course);
-
 		return response;
 	}
 
