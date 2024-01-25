@@ -15,11 +15,12 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception;
 
-	//ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest);
+	// ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest
+	// questionRequest);
 
 	ResponseEntity<?> getAllAssignments();
 
-	ResponseEntity<?> getAssignmentQuesById(Long questionId,Long assignmentId);
+	ResponseEntity<?> getAssignmentQuesById(Long questionId);
 
 	ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) throws Exception;
 
@@ -27,9 +28,10 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAllSubmitedAssginments();
 
-	ResponseEntity<?> updateSubmitedAssignmentStatus(Long submissionId,String status,String review);
+	ResponseEntity<?> updateSubmitedAssignmentStatus(Long submissionId, String status, String review);
 
-	ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl, List<MultipartFile> questionImages, Long assignmentId);
+	ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl, List<MultipartFile> questionImages,
+			Long assignmentId);
 
 	ResponseEntity<?> deleteTaskQuestion(Long questionId);
 
@@ -43,9 +45,11 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Integer studentId);
 
-	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId,Integer subjectId);
+	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId);
 
 	ResponseEntity<?> getSubmittedAssignmentBySubmissionId(Long submissionId);
 
-}
+	ResponseEntity<?> updateAssignmentQuestion(Long questionId, String question, String videoUrl,
+			List<String> questionImages, List<MultipartFile> newImages);
 
+}

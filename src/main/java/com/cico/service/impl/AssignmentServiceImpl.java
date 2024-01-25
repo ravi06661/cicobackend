@@ -69,12 +69,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public Assignment getAssignment(Long id) {
-//		Assignment assignment = assignmentRepository.findByIdAndIsDeleted(id, false)
-//				.orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
-//		assignment.setAssignmentQuestion(assignment.getAssignmentQuestion().parallelStream()
-//				.filter(obj1 -> !obj1.getIsDeleted()).collect(Collectors.toList()));
-//		return assignment;
-		return null;
+		Assignment assignment = assignmentRepository.findByIdAndIsDeleted(id, false)
+				.orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
+		assignment.setAssignmentQuestion(assignment.getAssignmentQuestion().parallelStream()
+				.filter(obj1 -> !obj1.getIsDeleted()).collect(Collectors.toList()));
+		return assignment;
+		// return null;
 	}
 
 	@Override
@@ -114,18 +114,18 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAssignmentQuesById(Long questionId, Long assignmentId) { ///
+	public ResponseEntity<?> getAssignmentQuesById(Long questionId) { ///
 		Map<String, Object> response = new HashMap<>();
 		AssignmentTaskQuestion assignmentTaskQuestion = assignmentTaskQuestionRepository.findByQuestionId(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-		Assignment assignment = assignmentRepository.findByIdAndIsDeleted(assignmentId, false).get();
+
 		AssignmentTaskFilterReponse obj = new AssignmentTaskFilterReponse();
 		obj.setQuestion(assignmentTaskQuestion.getQuestion());
 		obj.setQuestionId(assignmentTaskQuestion.getQuestionId());
 		obj.setVideoUrl(assignmentTaskQuestion.getVideoUrl());
 		obj.setQuestionImages(assignmentTaskQuestion.getQuestionImages());
 		response.put("question", obj);
-		response.put("attachment", assignment.getTaskAttachment());
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -180,7 +180,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 											response.setSubmitFile(obj3.getSubmitFile());
 											response.setDescription(obj3.getDescription());
 											return response;
-
 										})))
 				.forEach(resultList::add);
 		return new ResponseEntity<>(resultList, HttpStatus.OK);
@@ -237,11 +236,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignmentTaskQuestion.setVideoUrl(videoUrl);
 			assignmentTaskQuestion.setIsDeleted(false);
 			// assignmentTaskQuestion.setAssignmentId(assignmentId);
-			List<String> fileNames = questionImages.stream()
-					.map(file -> fileServiceImpl.uploadFileInFolder(file, QUESTION_IMAGES_DIR))
-					.collect(Collectors.toList());
-
-			assignmentTaskQuestion.setQuestionImages(fileNames);
+			if (Objects.nonNull(questionImages)) {
+				List<String> fileNames = questionImages.stream()
+						.map(file -> fileServiceImpl.uploadFileInFolder(file, QUESTION_IMAGES_DIR))
+						.collect(Collectors.toList());
+				assignmentTaskQuestion.setQuestionImages(fileNames);
+			}
 
 			assignment.getAssignmentQuestion().add(assignmentTaskQuestion);
 
@@ -257,7 +257,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	public ResponseEntity<?> addAssignment(Long assignmentId, MultipartFile attachment) {
 
 		Assignment assignment = assignmentRepository.findById(assignmentId).get();
-		if (Objects.nonNull(assignment)) {
+		if (Objects.nonNull(assignment) &&  Objects.nonNull(attachment)) {
 			String fileName = fileServiceImpl.uploadFileInFolder(attachment, ATTACHMENT_FILES_DIR);
 			assignment.setTaskAttachment(fileName);
 		}
@@ -281,7 +281,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignmentTaskStatus.setTotalSubmitted((int) (long) objects[4]);
 			assignmentTaskStatus.setTaskCount((int) (long) objects[5]);
 			assignmentTaskStatus.setTaskId((Long) objects[6]);
-			
+
 			assignmentTaskStatusList.add(assignmentTaskStatus);
 		}
 		return ResponseEntity.ok(assignmentTaskStatusList);
@@ -402,6 +402,11 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		List<Assignment> allAssignment = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(
 				studentRepository.findById(studentId).get().getCourse().getCourseId());
+
+		if (allAssignment.isEmpty()) {
+			response.put(AppConstants.MESSAGE, AppConstants.ASSIGNMENT_NOT_FOUND);
+			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+		}
 
 		allAssignment = AllAssignmentTemp(allAssignment);
 
@@ -652,13 +657,42 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			response.setDescription(sub.getDescription());
 			response.setStatus(sub.getStatus().toString());
 			response.setReview(sub.getReview());
-            
+
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
 			res.put("status", "no_found");
 			res.put("data", null);
 			return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
 		}
+
+	}
+
+	@Override
+	public ResponseEntity<?> updateAssignmentQuestion(Long questionId, String question, String videoUrl,
+			List<String> questionImages, List<MultipartFile> newImages) {
+		Map<String, Object> response = new HashMap<>();
+		AssignmentTaskQuestion assignmentTaskQuestion = assignmentTaskQuestionRepository.findByQuestionId(questionId)
+				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+
+		assignmentTaskQuestion.setQuestion(question);
+		assignmentTaskQuestion.setVideoUrl(videoUrl);
+		if(Objects.isNull(questionImages)) {
+		// assignmentTaskQuestion.setQuestionImages(new ArrayList<String>());
+		}else {
+			assignmentTaskQuestion.setQuestionImages(questionImages);
+		}
+		if (Objects.nonNull(newImages) && newImages.size() > 0) {
+			
+			List<String> fileNames = newImages.stream()
+					.map(file -> fileServiceImpl.uploadFileInFolder(file, QUESTION_IMAGES_DIR))
+					.collect(Collectors.toList());
+			// assignmentTaskQuestion.setQuestionImages(fileNames);
+			assignmentTaskQuestion.getQuestionImages().addAll(fileNames);
+		}
+		AssignmentTaskQuestion save = assignmentTaskQuestionRepository.save(assignmentTaskQuestion);
+		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
+		response.put("question", save);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 
 	}
 

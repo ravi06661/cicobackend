@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cico.model.Subject;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.SubjectResponse;
 import com.cico.service.ISubjectService;
@@ -78,11 +77,11 @@ public class SubjectController {
 		return ResponseEntity.ok(subjects);
 	}
 
-//	@GetMapping("/getAllSubjectsByCourseId")
-//	public ResponseEntity<List<SubjectResponse>> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
-//	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
-//	return ResponseEntity.ok(subjects);
-//	}
+	@GetMapping("/getAllSubjectsByCourseId")
+	public ResponseEntity<?> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
+	       return  subjectService.getAllSubjectsByCourseId(courseId);
+	
+	}
 
 	@PutMapping("/deleteSubjectById")
 	public ResponseEntity<ApiResponse> deleteSubjectById(@RequestParam("subjectId") Integer subjectId) {

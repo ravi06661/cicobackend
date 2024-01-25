@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.config.CommentResponseConfig;
+import com.cico.config.LikeResponseForum;
+import com.cico.config.RemoveComment;
 import com.cico.model.CommentReply;
 import com.cico.model.DiscussionFormComment;
 import com.cico.model.DiscusssionForm;
@@ -35,6 +37,8 @@ import com.cico.repository.LikeRepo;
 import com.cico.repository.StudentRepository;
 import com.cico.service.IFileService;
 import com.cico.service.IdiscussionForm;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class DiscussionFormServiceImpl implements IdiscussionForm {
@@ -259,12 +263,24 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				Likes obj = new Likes();
 				obj.setCreatedDate(LocalDateTime.now());
 				obj.setStudent(student);
-				likes.add(likeRepo.save(obj));
+				Likes like1 = likeRepo.save(obj);
+				likes.add(like1);
 				form.setLikes(likes);
 				DiscusssionForm save = discussionFormRepo.save(form);
 				DiscussionFormResponse obj1 = discussionFormFilter(save);
 				obj1.setIsLike(true);
-
+				
+				// sending to socket response ///
+				LikeResponseForum res = new LikeResponseForum();
+				res.setCreatedDate(LocalDateTime.now());
+				res.setDiscussionFormId(discussionFormId);
+				res.setLikeId(like1.getId());
+				res.setLike(true);
+				res.setType("likeResponse");
+				res.setStudentId(studentId);
+				sendMessageManually(res.toString());
+				////////////////end   //////
+				
 				return new ResponseEntity<>(obj1, HttpStatus.OK);
 			} else {
 				form.setLikes(likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() != studentId)
@@ -274,6 +290,17 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				DiscussionFormResponse obj1 = discussionFormFilter(form2);
 				obj1.setIsLike(false);
 
+				
+				// sending to socket response ///
+				LikeResponseForum res = new LikeResponseForum();
+				res.setCreatedDate(LocalDateTime.now());
+				res.setDiscussionFormId(discussionFormId);
+				res.setLikeId(like.getId());
+				res.setLike(false);
+				res.setType("removeLike");
+				res.setStudentId(studentId);
+				sendMessageManually(res.toString());
+				////////////////  end   //////
 				return new ResponseEntity<>(obj1, HttpStatus.OK);
 			}
 		}
@@ -312,7 +339,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			obj.getComments().forEach(obj2 -> {
 				List<CommentReplyResponse> commentReplyResponses = new ArrayList<>();
 				CommentResponse commentResponse = new CommentResponse();
-				// commentResponse.setCreatedDate(obj2.getCreatedDate());
+				commentResponse.setCreatedDate(obj2.getCreatedDate());
 				commentResponse.setStudentName(obj2.getStudent().getFullName());
 				commentResponse.setStudentProfilePic(obj2.getStudent().getProfilePic());
 				commentResponse.setId(obj2.getId());
@@ -352,6 +379,12 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 					comments.parallelStream().filter(obj -> obj.getId() != commentsId).collect(Collectors.toList()));
 			DiscusssionForm form2 = discussionFormRepo.save(discusssionForm1);
 			discussionFormCommentRepo.delete(discussionFormComment);
+
+			RemoveComment res = new RemoveComment();
+			res.setDiscussionFormId(discussionFormId);
+			res.setType("removeComment");
+			res.setCommentId(commentsId);
+			sendMessageManually(res.toString());
 			return new ResponseEntity<>(discussionFormFilter(form2), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -444,6 +477,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 	}
 
 	public void sendMessageManually(String message) {
+		System.err.println("message send" + message);
 		messageSendingOperations.convertAndSend("/queue/Chatmessages", message);
 	}
 }
