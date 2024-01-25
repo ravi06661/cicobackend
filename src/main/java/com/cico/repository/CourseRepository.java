@@ -57,4 +57,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	@Query("SELECT c.courseId ,c.courseName , c.technologyStack.imageName ,c.technologyStack.id FROM Course c WHERE  c.isDeleted = 0 AND c.isStarterCourse = 0 " )
 	public List<Object[]> getAllNonStarterCourses();
 
+		@Query("SELECT c.courseId ,c.courseName , c.technologyStack.imageName ,c.technologyStack.id FROM Course c WHERE  c.isDeleted = 0 AND c.isStarterCourse = 1 " )
+	public List<Object[]> getAllStarterCourses();
+
 }

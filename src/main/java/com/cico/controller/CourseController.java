@@ -1,5 +1,7 @@
 package com.cico.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cico.model.Course;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.CourseRequest;
 import com.cico.payload.CourseResponse;
-import com.cico.payload.PageResponse;
 import com.cico.service.ICourseService;
 import com.cico.util.AppConstants;
 
@@ -70,8 +70,8 @@ public class CourseController {
 	@PutMapping("/studentUpgradeCourse")
 	public ResponseEntity<?> studentUpgradeCourse(@RequestParam("studentId") Integer studnetId
 			,@RequestParam("courseId") Integer courseId){
-		ApiResponse studentUpgradeCourse = courseService.studentUpgradeCourse(studnetId,courseId);
-		return ResponseEntity.status(HttpStatus.CREATED).body(studentUpgradeCourse);
+		Map<String, Object> response = courseService.studentUpgradeCourse(studnetId,courseId);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
 	@GetMapping("/getCourseProgress")
@@ -85,4 +85,8 @@ public class CourseController {
 		 return  courseService.getCoureWithBatchesAndSubjects(courseId);
 	}
 	
+	@GetMapping("/getAllCourseApi")
+	public ResponseEntity<?> getAllStarterCourses(){
+		return courseService.getAllStarterCourses();
+	}
 }
