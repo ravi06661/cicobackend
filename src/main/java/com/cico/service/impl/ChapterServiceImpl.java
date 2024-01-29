@@ -259,13 +259,11 @@ public class ChapterServiceImpl implements IChapterService {
 				chapterContentResponse.setChapterName((String) list[0]);
 				res.add(chapterContentResponse);
 			}
+		}
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 			response.put("chapterContent", res);
 			return new ResponseEntity<>(response, HttpStatus.OK);
-		}else {
-			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-		}
+		
 	}
 
 	@Override
