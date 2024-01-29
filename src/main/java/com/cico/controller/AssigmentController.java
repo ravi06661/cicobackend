@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.service.IAssignmentService;
+import com.cico.util.SubmissionStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -92,7 +93,7 @@ public class AssigmentController {
 	// This API for Admin Uses
 	@GetMapping("/getAllSubmitedAssginments")
 	public ResponseEntity<?> getAllSubmitedAssginments(@RequestParam("courseId") Integer courseId,
-			@RequestParam("subjectId") Integer subjectId,@RequestParam("status")String status) {
+			@RequestParam("subjectId") Integer subjectId,@RequestParam("status")SubmissionStatus status) {
 		return service.getAllSubmitedAssginments(courseId,subjectId,status);
 	}
 

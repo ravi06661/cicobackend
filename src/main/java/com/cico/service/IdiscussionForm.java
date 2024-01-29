@@ -24,5 +24,7 @@ ResponseEntity<?> createDiscussionForm(Integer studentId, MultipartFile file, St
 	ResponseEntity<?> addCommentReply(Integer studentId, Integer commentsId, String content, MultipartFile file);
 
 	ResponseEntity<?> removeCommentReply(Integer commentReplyId, Integer commentsId);
+
+	ResponseEntity<?> searchingDiscussionForm(String search);
 }
 

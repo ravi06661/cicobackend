@@ -294,7 +294,7 @@ public class ChapterServiceImpl implements IChapterService {
 		questionResponse.setOption1(question.getOption1());
 		questionResponse.setOption2(question.getOption2());
 		questionResponse.setOption3(question.getOption3());
-		questionResponse.setOption4(question.getOption3());
+		questionResponse.setOption4(question.getOption4());
 		questionResponse.setSelectedOption(question.getSelectedOption());
 		questionResponse.setQuestionId(question.getQuestionId());
 		questionResponse.setQuestionContent(question.getQuestionContent());

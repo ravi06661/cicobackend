@@ -25,6 +25,7 @@ import com.cico.model.Question;
 import com.cico.model.Student;
 import com.cico.payload.ChapterExamResultRequest;
 import com.cico.payload.ChapterExamResultResponse;
+import com.cico.payload.ExamResultResponse;
 import com.cico.payload.QuestionResponse;
 import com.cico.repository.ChapterCompletedRepository;
 import com.cico.repository.ChapterExamResultRepo;
@@ -62,7 +63,7 @@ public class ExamServiceImpl implements IExamService {
 	private StudentRepository studentRepository;
 	@Autowired
 	private StudentServiceImpl studentServiceImpl;
-	
+
 	@Autowired
 	private ChapterCompletedRepository chapterCompletedRepository;
 
@@ -168,122 +169,120 @@ public class ExamServiceImpl implements IExamService {
 
 	@Override
 	public ResponseEntity<?> addChapterExamResult(ChapterExamResultRequest chapterExamResult) {
-        Student student = studentRepository.findById(chapterExamResult.getStudentId()).get();
-	    Chapter chapter = chapterRepo.findById(chapterExamResult.getChapterId()).get();
-	    
-	    Optional<ChapterExamResult> findByChapterAndStudent = chapterExamResultRepo.findByChapterAndStudent(chapter,student);
-	    if(findByChapterAndStudent.isPresent())
-	    	throw new ResourceAlreadyExistException("Your Are Already Submited This Test");
-	    
-	    ChapterExamResult examResult = new ChapterExamResult();
-	    Map<Integer, String> review = chapterExamResult.getReview();
-	    int correct=0;
-	    int inCorrect=0;
-	    examResult.setChapter(chapter);
-	    examResult.setStudent(student);
-	  
-	                 List<Question> questions = chapter.getExam().getQuestions();
-	              questions  =  questions.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
+		Student student = studentRepository.findById(chapterExamResult.getStudentId()).get();
+		Chapter chapter = chapterRepo.findById(chapterExamResult.getChapterId()).get();
 
-	    for(Question q :questions) {
+		Optional<ChapterExamResult> findByChapterAndStudent = chapterExamResultRepo.findByChapterAndStudent(chapter,
+				student);
+		if (findByChapterAndStudent.isPresent())
+			throw new ResourceAlreadyExistException("Your Are Already Submited This Test");
+
+		ChapterExamResult examResult = new ChapterExamResult();
+		Map<Integer, String> review = chapterExamResult.getReview();
+		int correct = 0;
+		int inCorrect = 0;
+		examResult.setChapter(chapter);
+		examResult.setStudent(student);
+
+		List<Question> questions = chapter.getExam().getQuestions();
+		questions = questions.parallelStream().filter(obj -> !obj.getIsDeleted()).collect(Collectors.toList());
+
+		for (Question q : questions) {
 //	    	if(!review.containsKey(q.getQuestionId())) {
 //	    		 review.put(q.getQuestionId()," ");
 //	    	}
-	    	 Integer id = q.getQuestionId();
-	    	 String correctOption = q.getCorrectOption();
-	    	
-	    	if(!review.isEmpty()) {
-	    		String reviewAns = review.get(id);
-	    		if(Objects.nonNull(reviewAns)) {
-	    			if(review.get(id).equals(correctOption)) {
-			    		 correct++;
-			    	 }else {
-			    		 inCorrect++;
-			    	 }
-	    		}
-	    	}
-	    }
-	    examResult.setReview(review);
-	    examResult.setCorrecteQuestions(correct);
-	    examResult.setWrongQuestions(inCorrect);
-	    examResult.setNotSelectedQuestions(questions.size()-(correct+inCorrect));
-	    examResult.setScoreGet(correct-inCorrect);
-	    examResult.setTotalQuestion(questions.size());
+			Integer id = q.getQuestionId();
+			String correctOption = q.getCorrectOption();
+
+			if (!review.isEmpty()) {
+				String reviewAns = review.get(id);
+				if (Objects.nonNull(reviewAns)) {
+					if (review.get(id).equals(correctOption)) {
+						correct++;
+					} else {
+						inCorrect++;
+					}
+				}
+			}
+		}
+		examResult.setReview(review);
+		examResult.setCorrecteQuestions(correct);
+		examResult.setWrongQuestions(inCorrect);
+		examResult.setNotSelectedQuestions(questions.size() - (correct + inCorrect));
+		examResult.setScoreGet(correct - inCorrect);
+		examResult.setTotalQuestion(questions.size());
 		ChapterExamResult save = chapterExamResultRepo.save(examResult);
-		
-		
-       ChapterCompleted chapterCompleted = new  ChapterCompleted();
-        chapterCompleted.setChapterId(chapterExamResult.getChapterId());
-        chapterCompleted.setStudentId(chapterExamResult.getStudentId());
-        chapterCompleted.setSubjectId(chapterExamResult.getSubjectId());
-        chapterCompletedRepository.save(chapterCompleted);
+
+		ChapterCompleted chapterCompleted = new ChapterCompleted();
+		chapterCompleted.setChapterId(chapterExamResult.getChapterId());
+		chapterCompleted.setStudentId(chapterExamResult.getStudentId());
+		chapterCompleted.setSubjectId(chapterExamResult.getSubjectId());
+		chapterCompletedRepository.save(chapterCompleted);
 		return new ResponseEntity<>(save, HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> getChapterExamResult(Integer id) {
-		
-	    Map<String,Object>response=  new HashMap<>();
-	     
-		
-	    ChapterExamResult examResult = chapterExamResultRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-	    ChapterExamResultResponse  chapterExamResultResponse  = new  ChapterExamResultResponse();
-	    
-	    chapterExamResultResponse.setCorrecteQuestions(examResult.getCorrecteQuestions());
-	    chapterExamResultResponse.setId(examResult.getId());
-	    chapterExamResultResponse.setNotSelectedQuestions(examResult.getNotSelectedQuestions());
-	    chapterExamResultResponse.setReview(examResult.getReview());
-	    chapterExamResultResponse.setWrongQuestions(examResult.getWrongQuestions());
-	    chapterExamResultResponse.setTotalQuestion(examResult.getTotalQuestion());
-	    chapterExamResultResponse.setScoreGet(examResult.getScoreGet());
-	    
-	    
-		List<QuestionResponse> questions = examResult.getChapter().getExam().getQuestions().parallelStream().map(obj->questionFilter(obj)).collect(Collectors.toList());
+
+		Map<String, Object> response = new HashMap<>();
+
+		ChapterExamResult examResult = chapterExamResultRepo.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+		ChapterExamResultResponse chapterExamResultResponse = new ChapterExamResultResponse();
+
+		chapterExamResultResponse.setCorrecteQuestions(examResult.getCorrecteQuestions());
+		chapterExamResultResponse.setId(examResult.getId());
+		chapterExamResultResponse.setNotSelectedQuestions(examResult.getNotSelectedQuestions());
+		chapterExamResultResponse.setReview(examResult.getReview());
+		chapterExamResultResponse.setWrongQuestions(examResult.getWrongQuestions());
+		chapterExamResultResponse.setTotalQuestion(examResult.getTotalQuestion());
+		chapterExamResultResponse.setScoreGet(examResult.getScoreGet());
+
+		List<QuestionResponse> questions = examResult.getChapter().getExam().getQuestions().parallelStream()
+				.map(obj -> questionFilter(obj)).collect(Collectors.toList());
 		response.put("examResult", chapterExamResultResponse);
 		response.put("questions", questions);
-		return new ResponseEntity<>(response,HttpStatus.OK);
-	} 
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
 	public QuestionResponse questionFilter(Question question) {
-		QuestionResponse questionResponse =  new QuestionResponse();
+		QuestionResponse questionResponse = new QuestionResponse();
 		questionResponse.setCorrectOption(question.getCorrectOption());
 		questionResponse.setOption1(question.getOption1());
 		questionResponse.setOption2(question.getOption2());
 		questionResponse.setOption3(question.getOption3());
-		questionResponse.setOption4(question.getOption3());
+		questionResponse.setOption4(question.getOption4());
 		questionResponse.setSelectedOption(question.getSelectedOption());
 		questionResponse.setQuestionId(question.getQuestionId());
 		questionResponse.setQuestionContent(question.getQuestionContent());
 		questionResponse.setQuestionImage(question.getQuestionImage());
-	   
+
 		return questionResponse;
 	}
 
 	@Override
 	public ResponseEntity<?> getChapterExamIsCompleteOrNot(Integer chapterId, Integer studentId) {
 		Map<String, Object> response = new HashMap<>();
-		ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId,studentId);
-			Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
-			Student student = studentRepository.findByStudentId(studentId);
-			Optional<ChapterExamResult> examResult = chapterExamResultRepo.findByChapterAndStudent(chapter, student);
-			response.put("chapterExamComplete", chapterCompleted);
-			if (examResult.isPresent()) {
-				response.put("resultId", examResult.get().getId());
-			}
-			return new ResponseEntity<>(response,HttpStatus.OK);
+		ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId, studentId);
+		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
+		Student student = studentRepository.findByStudentId(studentId);
+		Optional<ChapterExamResult> examResult = chapterExamResultRepo.findByChapterAndStudent(chapter, student);
+		response.put("chapterExamComplete", chapterCompleted);
+		if (examResult.isPresent()) {
+			response.put("resultId", examResult.get().getId());
+		}
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> getChapterExamResultByChaterId(Integer chapterId) {
-		// TODO Auto-generated method stub
-		Map<String,Object>response=  new HashMap<>();
-		
-			List<ChapterExamResult> findAllById = chapterExamResultRepo.findAllById(chapterId);
-			if(Objects.nonNull(findAllById)) {
+		Map<String, Object> response = new HashMap<>();
+		List<ExamResultResponse> findAllById = chapterExamResultRepo.findAllStudentResultWithChapterId(chapterId);
+		if (Objects.nonNull(findAllById)) {
 			response.put("examResult", findAllById);
-			}
-			response.put("Not Found", findAllById);
-		 return new ResponseEntity<>(response,HttpStatus.OK);
+		} else {
+			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
+		}
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }
-
-

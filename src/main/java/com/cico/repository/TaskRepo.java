@@ -12,6 +12,7 @@ import com.cico.model.Task;
 import com.cico.payload.AssignmentAndTaskSubmission;
 import com.cico.payload.AssignmentSubmissionResponse;
 import com.cico.payload.TaskStatusSummary;
+import com.cico.util.SubmissionStatus;
 
 public interface TaskRepo extends JpaRepository<Task, Long> {
 
@@ -57,17 +58,17 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 	        "COUNT(DISTINCT ts), " +
 	        "COUNT(CASE WHEN ts.status = 'Unreviewed' THEN ts END) as unreviewedCount, " + 
 	        "COUNT(CASE WHEN ts.status IN ('Rejected', 'Accepted', 'Reviewing') THEN ts END) as reviewedCount) " +
-	        "FROM Task t JOIN t.assignmentSubmissions ts GROUP BY  t.id" )
+	        "FROM Task t LEFT JOIN t.assignmentSubmissions ts GROUP BY  t.id" )
 	 List<AssignmentAndTaskSubmission> getAllSubmissionTaskStatus();
 
 	
 	
-	//String applyForCourse,String fullName, LocalDateTime submissionDate,SubmissionStatus status , String profilePic, String title, String submitFile, String description, Long submissionId,	String review
+	
 	@Query("SELECT  "
 			+ " NEW com.cico.payload.AssignmentSubmissionResponse(ts.student.applyForCourse ,ts.student.fullName ,ts.submissionDate ,ts.status,ts.student.profilePic,t.taskName,ts.submittionFileName,ts.taskDescription,ts.id,ts.review) "
-			+ "FROM Task t " + "JOIN t.assignmentSubmissions ts "
-			+ "WHERE ( t.course.courseId =:courseId OR :courseId =0 )AND ( t.subject.subjectId =:subjectId  OR :subjectId =0) " + "AND t.isDeleted = 0 " )
+			+ "FROM Task t " + " JOIN t.assignmentSubmissions ts "
+			+ "WHERE (t.course.courseId = :courseId OR :courseId = 0) AND (t.subject.subjectId = :subjectId OR :subjectId = 0) AND (ts.status = :status OR :status = 'NOT_CHECKED_WITH_IT') " + "AND t.isDeleted = 0 " )
 	List<AssignmentSubmissionResponse> findAllSubmissionTaskWithCourseIdAndSubjectId(@Param("courseId") Integer courseId,
-			@Param("subjectId") Integer subjectId);
+			@Param("subjectId") Integer subjectId,  @Param("status") SubmissionStatus status);
 
 }

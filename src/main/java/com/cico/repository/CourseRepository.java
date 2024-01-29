@@ -28,9 +28,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 			+ "GROUP BY c.courseId, c.courseName")
 	public Page<Object[]> findAllByIsDeleted(@Param("isDeleted") Boolean isDeleted, PageRequest p);
 
-//	@Query("SELECT c From Course c JOIN FETCH c.batches b Where c.courseId=:courseId AND b.isDeleted = 0")
-
-//	public Optional<Course> findById(@Param("courseId") Integer courseId);
 
 	@Query("SELECT c From Course c  Where c.courseId =:courseId AND c.isDeleted = 0")
 	public Optional<Course> findByCourseId(@Param("courseId") Integer courseId);
@@ -45,7 +42,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
 	public List<Course> findBycourseIdInAndIsDeletedFalse(List<Integer> courseId);
 
-	//@Query("SELECT c.courseId, c.courseName ,c.courseFees,c.sortDescription,c.duration ,c.isStarterCourse ,c.technologyStack.imageName , c.technologyStack.id , c.subjects ,c.batches  FROM Course c WHERE c.isDeleted =:isDeleted  AND  c.courseId =:courseId")
+	
 	public Course findByCourseIdAndIsDeleted(Integer courseId,Boolean isDeleted);
 
 	@Query("SELECT DISTINCT c.courseId, c.courseName, COUNT(DISTINCT s), COUNT(DISTINCT b), s.subjectName, s.technologyStack.imageName, b.batchName, b.subject.technologyStack.imageName, b.batchStartDate, b.batchTiming, b.batchDetails "

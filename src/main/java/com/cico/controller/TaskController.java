@@ -20,6 +20,7 @@ import com.cico.model.Task;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.TaskRequest;
 import com.cico.service.ITaskService;
+import com.cico.util.SubmissionStatus;
 
 @RequestMapping("/task")
 @RestController
@@ -94,8 +95,8 @@ public class TaskController {
 	
 	@GetMapping("/getAllSubmitedTask")
 	public ResponseEntity<?> getAllSubmitedTasks(@RequestParam("courseId") Integer courseId,
-			@RequestParam("subjectId") Integer subjectId) {
-		return taskService.getAllSubmitedTasks(courseId, subjectId);
+			@RequestParam("subjectId") Integer subjectId,@RequestParam("status")SubmissionStatus status) {
+		return taskService.getAllSubmitedTasks(courseId, subjectId,status);
 	}
 
 	@GetMapping("/getAllSubmissionTaskStatus")

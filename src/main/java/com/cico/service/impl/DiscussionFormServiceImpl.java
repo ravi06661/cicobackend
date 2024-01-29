@@ -269,7 +269,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				DiscusssionForm save = discussionFormRepo.save(form);
 				DiscussionFormResponse obj1 = discussionFormFilter(save);
 				obj1.setIsLike(true);
-				
+
 				// sending to socket response ///
 				LikeResponseForum res = new LikeResponseForum();
 				res.setCreatedDate(LocalDateTime.now());
@@ -279,8 +279,8 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				res.setType("likeResponse");
 				res.setStudentId(studentId);
 				sendMessageManually(res.toString());
-				////////////////end   //////
-				
+				//////////////// end //////
+
 				return new ResponseEntity<>(obj1, HttpStatus.OK);
 			} else {
 				form.setLikes(likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() != studentId)
@@ -290,7 +290,6 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				DiscussionFormResponse obj1 = discussionFormFilter(form2);
 				obj1.setIsLike(false);
 
-				
 				// sending to socket response ///
 				LikeResponseForum res = new LikeResponseForum();
 				res.setCreatedDate(LocalDateTime.now());
@@ -300,7 +299,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				res.setType("removeLike");
 				res.setStudentId(studentId);
 				sendMessageManually(res.toString());
-				////////////////  end   //////
+				//////////////// end //////
 				return new ResponseEntity<>(obj1, HttpStatus.OK);
 			}
 		}
@@ -479,5 +478,13 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 	public void sendMessageManually(String message) {
 		System.err.println("message send" + message);
 		messageSendingOperations.convertAndSend("/queue/Chatmessages", message);
+	}
+
+	@Override
+	public ResponseEntity<?> searchingDiscussionForm(String search) {
+		List<DiscusssionForm> searching = discussionFormRepo.searching(search.trim());
+		List<DiscussionFormResponse> collect = searching.stream().map(obj -> discussionFormFilter(obj))
+				.collect(Collectors.toList());
+		return new ResponseEntity<>(collect, HttpStatus.OK);
 	}
 }

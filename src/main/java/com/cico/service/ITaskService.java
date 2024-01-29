@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.model.Task;
 import com.cico.payload.TaskFilterRequest;
 import com.cico.payload.TaskRequest;
+import com.cico.util.SubmissionStatus;
 
 public interface ITaskService {
 
@@ -30,7 +31,7 @@ public interface ITaskService {
 
 	ResponseEntity<?> deleteTaskQuestion( Long questionId);
 
-	ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId);
+	ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId, SubmissionStatus status);
 
 	ResponseEntity<?> getAllSubmissionTaskStatus();
 

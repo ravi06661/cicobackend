@@ -123,7 +123,7 @@ public class TaskServiceImpl implements ITaskService {
 		task.setSubject(subject);
 		task.setIsDeleted(taskFilter.getStatus());
 		example = Example.of(task);
-		 taskRepo.findAll(example);
+		taskRepo.findAll(example);
 		return null;
 
 	}
@@ -260,17 +260,17 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId) {
-		List<AssignmentSubmissionResponse> res = taskRepo.findAllSubmissionTaskWithCourseIdAndSubjectId(courseId, subjectId);
-		return new ResponseEntity<>(res,HttpStatus.OK);
+	public ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId, SubmissionStatus status) {
+		List<AssignmentSubmissionResponse> res = taskRepo.findAllSubmissionTaskWithCourseIdAndSubjectId(courseId,
+				subjectId,status);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	public ResponseEntity<?> getAllSubmissionTaskStatus() {
-	List<AssignmentAndTaskSubmission> allSubmissionTaskStatus = taskRepo.getAllSubmissionTaskStatus();
+		List<AssignmentAndTaskSubmission> allSubmissionTaskStatus = taskRepo.getAllSubmissionTaskStatus();
 		return new ResponseEntity<>(allSubmissionTaskStatus, HttpStatus.OK);
 
 	}
-
 
 	public ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId) {
 
@@ -301,7 +301,18 @@ public class TaskServiceImpl implements ITaskService {
 		} else if (status.equals(SubmissionStatus.Rejected.toString())) {
 			taskSubmissionRepository.updateSubmitTaskStatus(submissionId, SubmissionStatus.Rejected, review);
 		}
-		return new ResponseEntity<>(taskSubmissionRepository.findBySubmissionId(submissionId), HttpStatus.CREATED);
+
+		TaskSubmission res = taskSubmissionRepository.findBySubmissionId(submissionId);
+		TaskSubmissionResponse response = new TaskSubmissionResponse();
+		response.setFullName(res.getStudent().getFullName());
+		response.setId(res.getId());
+		response.setProfilePic(res.getStudent().getProfilePic());
+		response.setReview(res.getReview());
+		response.setStatus(res.getStatus().toString());
+		response.setSubmissionDate(res.getSubmissionDate());
+		response.setSubmittionFileName(res.getSubmittionFileName());
+		response.setSubmittionFileName(res.getSubmittionFileName());
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@Override

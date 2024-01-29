@@ -18,6 +18,7 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.Exam;
 import com.cico.model.Question;
+import com.cico.payload.QuestionResponse;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.QuestionRepo;
@@ -80,7 +81,7 @@ public class QuestionServiceImpl implements IQuestionService {
 			String option3, String option4, String correctOption, MultipartFile image) {
 
 		Map<String, Object> response = new HashMap<>();
-
+System.out.println(option1+""+option2+""+option3+""+option4);
 		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 		if (questionContent != null)
@@ -118,8 +119,22 @@ public class QuestionServiceImpl implements IQuestionService {
 		} else {
 			question.setQuestionImage(question.getQuestionImage());
 		}
+		
+		 Question res = questionRepo.save(question);
+		 QuestionResponse  q = new QuestionResponse();
+		 q.setCorrectOption(res.getCorrectOption());
+		 q.setOption1(res.getOption1());
+		 q.setOption2(res.getOption2());
+		 q.setOption3(res.getOption3());
+		 q.setOption4(res.getOption4());
+		 q.setQuestionContent(res.getQuestionContent());
+		 q.setQuestionId(res.getQuestionId());
+		 q.setQuestionImage(res.getQuestionImage());
+		 
 		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
-		response.put("question", questionRepo.save(question));
+		response.put("question",q);
+		
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 
 	}
