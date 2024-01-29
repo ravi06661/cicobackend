@@ -1,5 +1,6 @@
 package com.cico.payload;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,6 +18,7 @@ public class AssignmentTaskFilterReponse {
 	private String question;
 	private String videoUrl;
 	private List<String> questionImages;
+	private LocalDateTime submissionDate;
      
 	@SuppressWarnings("unchecked")
 	public AssignmentTaskFilterReponse(Long questionId, String question, String videoUrl, Object questionImages) {
@@ -28,6 +30,10 @@ public class AssignmentTaskFilterReponse {
 		this.questionImages = (List<String>)questionImages;
 		
 		
+	}
+
+	public AssignmentTaskFilterReponse(Long questionId2) {
+		this.questionId = questionId2;
 	}
 
 }

@@ -38,7 +38,8 @@ public class AssignmentTaskQuestion {
 	@ElementCollection
 	@CollectionTable
 	private List<String> questionImages;
-
+   
+	@Column(columnDefinition = "longtext")
 	private String videoUrl;
 	
 	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)

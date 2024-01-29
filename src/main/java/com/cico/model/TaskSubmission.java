@@ -23,12 +23,13 @@ import lombok.NoArgsConstructor;
 public class TaskSubmission {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private Long id;
 	private String taskDescription;
 	private String submittionFileName;
 	@OneToOne
 	private Student student;
-	private Long taskId;
+
+	//private Long taskId;
 	private LocalDateTime submissionDate;
 	@Enumerated(EnumType.STRING)
 	private SubmissionStatus status;

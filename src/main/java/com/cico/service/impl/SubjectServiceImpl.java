@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.hibernate.tool.schema.internal.StandardForeignKeyExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,9 +58,19 @@ public class SubjectServiceImpl implements ISubjectService {
 		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
 
 		Subject save = subRepo.save(subject);
+
+		SubjectResponse res = new SubjectResponse();
+		res.setSubjectId(save.getSubjectId());
+		res.setSubjectName(save.getSubjectName());
+		TechnologyStackResponse techres = new TechnologyStackResponse();
+		techres.setId(save.getTechnologyStack().getId());
+		techres.setImageName(save.getTechnologyStack().getImageName());
+		techres.setTechnologyName(save.getTechnologyStack().getTechnologyName());
+
+		res.setTechnologyStack(techres);
 		if (Objects.nonNull(save)) {
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-			response.put("subject", save);
+			response.put("subject", res);
 			return new ResponseEntity<>(response, HttpStatus.CREATED);
 		}
 		response.put(AppConstants.MESSAGE, AppConstants.FAILED);

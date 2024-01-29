@@ -11,13 +11,13 @@ import com.cico.payload.TaskRequest;
 
 public interface ITaskService {
 
-	Task createTask(TaskRequest taskRequest);
+	ResponseEntity<?> createTask(TaskRequest taskRequest);
 
 	void updateTaskStatus(Long taskId);
 
 	List<Task> getFilteredTasks(TaskFilterRequest taskFilter);
 
-	Task getTaskById(Long taskId);
+	ResponseEntity<?> getTaskById(Long taskId);
 
 	List<Task> getAllTask();
 	
@@ -30,18 +30,27 @@ public interface ITaskService {
 
 	ResponseEntity<?> deleteTaskQuestion( Long questionId);
 
-	ResponseEntity<?> getAllSubmitedTasks();
+	ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId);
 
 	ResponseEntity<?> getAllSubmissionTaskStatus();
 
 	ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId);
 
-	ResponseEntity<?> updateSubmitedTaskStatus(Integer submissionId, String status, String review);
+	ResponseEntity<?> updateSubmitedTaskStatus(Long submissionId, String status, String review);
 
 	ResponseEntity<?> getOverAllTaskStatusforBarChart();
 
 	ResponseEntity<?> getAllTaskOfStudent(Integer studentId);
 
 	ResponseEntity<?> isTaskSubmitted(Long taskId, Integer studentId);
+
+	ResponseEntity<?> getSubmissionTaskById(Long id);
+
+	ResponseEntity<?> getTaskQuestion(Long questionId);
+
+	ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId);
+
+	ResponseEntity<?> updateTaskQuestion(Long questionId, String question, String videoUrl, List<String> questionImages,
+			List<MultipartFile> newImages);
 
 }

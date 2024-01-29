@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.model.Assignment;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.service.IAssignmentService;
@@ -44,16 +43,16 @@ public class AssigmentController {
 	}
 	
 	@GetMapping("/getAssignment")
-	public ResponseEntity<Assignment> getAssigment(@RequestParam("assignmentId") Long id) {
-		Assignment assignment = service.getAssignment(id);  // 
-		return ResponseEntity.ok(assignment);
+	public ResponseEntity<?> getAssigment(@RequestParam("assignmentId") Long id) {
+		return service.getAssignment(id);  // 
+		
 	}
 
 	@PostMapping("/addQuestionInAssignment")
 	public ResponseEntity<?> addQuestionInAssignment(@RequestParam("assignmentId") Long assignmentId,
 			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,
 			@RequestParam(value = "questionImages", required = false) List<MultipartFile> questionImages) {
-		return service.addQuestionInAssignment2(question, videoUrl, questionImages, assignmentId);
+		return service.addQuestionInAssignment(question, videoUrl, questionImages, assignmentId);
 	}
 
 	@GetMapping("/getAllAssignments")
@@ -92,8 +91,9 @@ public class AssigmentController {
 
 	// This API for Admin Uses
 	@GetMapping("/getAllSubmitedAssginments")
-	public ResponseEntity<?> getAllSubmitedAssginments() {
-		return service.getAllSubmitedAssginments();
+	public ResponseEntity<?> getAllSubmitedAssginments(@RequestParam("courseId") Integer courseId,
+			@RequestParam("subjectId") Integer subjectId,@RequestParam("status")String status) {
+		return service.getAllSubmitedAssginments(courseId,subjectId,status);
 	}
 
 	@PutMapping("/updateSubmitedAssignmentStatus")

@@ -27,7 +27,7 @@ public interface AssignmentTaskQuestionRepository extends JpaRepository<Assignme
 
 	@Modifying
 	@Transactional
-	@Query("UPDATE AssignmentTaskQuestion a set a.isDeleted = 0 WHERE a.questionId =:questionId")
+	@Query("UPDATE AssignmentTaskQuestion a set a.isDeleted = 1 WHERE a.questionId =:questionId")
 	void deleteQuestionByIdAndId(Long questionId);
 
 	@Query("SELECT   a FROM  AssignmentTaskQuestion a   WHERE  a.isDeleted = 0 AND  a.questionId =:questionId")

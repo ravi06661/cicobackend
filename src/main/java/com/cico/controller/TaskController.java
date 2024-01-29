@@ -30,37 +30,36 @@ public class TaskController {
 	ITaskService taskService;
 
 	@PostMapping("/createTask")
-	private ResponseEntity<Task> createTask(@RequestBody TaskRequest taskRequest) {
-		Task task = taskService.createTask(taskRequest);
-		return new ResponseEntity<Task>(task, HttpStatus.OK);
-
+	private ResponseEntity<?> createTask(@RequestBody TaskRequest taskRequest) {
+		return taskService.createTask(taskRequest);
 	}
 
-	@PutMapping("/updateTaskStatus")    
+	@PutMapping("/updateTaskStatus")
 	private ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") Long taskId) {
 		taskService.updateTaskStatus(taskId);
 		return ResponseEntity.ok(new ApiResponse(true, "Task Created", HttpStatus.OK));
 	}
 
 	@GetMapping("/getTaskById")
-	public ResponseEntity<Task> getTaskById(@RequestParam("taskId") Long taskId) {
-		Task task = this.taskService.getTaskById(taskId);
-		return new ResponseEntity<Task>(task, HttpStatus.OK);
+	public ResponseEntity<?> getTaskById(@RequestParam("taskId") Long taskId) {
+		return this.taskService.getTaskById(taskId);
+
 	}
 
-	@GetMapping("/getAllTask") 
+	@GetMapping("/getAllTask")
 	public ResponseEntity<List<Task>> getAllTask() {
 		List<Task> tasks = taskService.getAllTask();
 		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
 	}
-	@GetMapping("/getAllTaskOfStudent") 
-	public ResponseEntity<?> getAllTaskOfStudent(@RequestParam("studentId")Integer studentId) {
+
+	@GetMapping("/getAllTaskOfStudent")
+	public ResponseEntity<?> getAllTaskOfStudent(@RequestParam("studentId") Integer studentId) {
 		return taskService.getAllTaskOfStudent(studentId);
-		
+
 	}
 
 	@PostMapping("/studentTaskSubmittion")
-	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") 	Long taskId,
+	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") Long taskId,
 			@RequestParam("studentId") Integer studentId,
 			@RequestParam(name = "submittionFileName", required = false) MultipartFile file,
 			@RequestParam("taskDescription") String taskDescription) throws Exception {
@@ -70,15 +69,15 @@ public class TaskController {
 
 	@PostMapping("/addQuestionInTask")
 	public ResponseEntity<?> addQuestionInTask(@RequestParam("taskId") Long taskId,
-			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,
-			@RequestParam("questionImages") List<MultipartFile> questionImages) {
+			@RequestParam("question") String question, @RequestParam(value =  "videoUrl" ,required = false) String videoUrl,
+			@RequestParam(value = "questionImages",required = false) List<MultipartFile> questionImages) {
 		return taskService.addQuestionInTask(question, videoUrl, questionImages, taskId);
 
 	}
 
 	@PostMapping("/addTaskAttachment")
 	public ResponseEntity<?> addTaskAttachment(@RequestParam("taskId") Long taskId,
-			@RequestParam("attachment") MultipartFile attachment) {
+			@RequestParam(value = "attachment",required = false) MultipartFile attachment) {
 		return this.taskService.addTaskAttachment(taskId, attachment);
 	}
 
@@ -92,9 +91,11 @@ public class TaskController {
 		return taskService.getSubmitedTaskForStudent(studentId);
 	}
 
+	
 	@GetMapping("/getAllSubmitedTask")
-	public ResponseEntity<?> getAllSubmitedTasks() {
-		return taskService.getAllSubmitedTasks();
+	public ResponseEntity<?> getAllSubmitedTasks(@RequestParam("courseId") Integer courseId,
+			@RequestParam("subjectId") Integer subjectId) {
+		return taskService.getAllSubmitedTasks(courseId, subjectId);
 	}
 
 	@GetMapping("/getAllSubmissionTaskStatus")
@@ -103,18 +104,44 @@ public class TaskController {
 	}
 
 	@PutMapping("/updateSubmitedAssignmentStatus")
-	public ResponseEntity<?> updateSubmitedAssignmentStatus(@RequestParam("submissionId") Integer submissionId,
+	public ResponseEntity<?> updateSubmitedAssignmentStatus(@RequestParam("submissionId") Long submissionId,
 			@RequestParam("status") String status, @RequestParam("review") String review) {
 		return taskService.updateSubmitedTaskStatus(submissionId, status, review);
 	}
+
 	@GetMapping("/getOverAllTaskStatusforBarChart")
-	public ResponseEntity<?>getOverAllTaskStatusforBarChart(){
-	   return taskService.getOverAllTaskStatusforBarChart();
+	public ResponseEntity<?> getOverAllTaskStatusforBarChart() {
+		return taskService.getOverAllTaskStatusforBarChart();
 	}
-	
+
 	@GetMapping("/isTaskSubmitted")
-	public ResponseEntity<?> isTaskSubmitted(@RequestParam("taskId") Long taskId,@RequestParam("studentId")Integer studentId) {
-		return taskService.isTaskSubmitted(taskId,studentId);
+	public ResponseEntity<?> isTaskSubmitted(@RequestParam("taskId") Long taskId,
+			@RequestParam("studentId") Integer studentId) {
+		return taskService.isTaskSubmitted(taskId, studentId);
 	}
 	
+	@GetMapping("/getSubmissionTaskById")
+	public ResponseEntity<?>getSubmissionTaskById(@RequestParam("id")Long id){
+		return taskService.getSubmissionTaskById(id);
+	}
+
+	
+	@GetMapping("/getTaskQuestion")
+	public ResponseEntity<?>getTaskQuestion(@RequestParam("questionId") long questionId){
+		return taskService.getTaskQuestion(questionId);
+	}
+	@GetMapping("/getAllSubmissionTaskStatusByCourseIdAndSubjectId")
+	public ResponseEntity<?>getAllSubmissionTaskStatusByCourseIdAndSubjectId(@RequestParam("courseId") Integer courseId,
+			@RequestParam("subjectId") Integer subjectId){
+		return taskService.getAllSubmissionTaskStatusByCourseIdAndSubjectId(courseId,subjectId);
+	}
+	
+	@PutMapping("/updateTaskQuestion")
+	public ResponseEntity<?> updateTaskQuestion(@RequestParam("questionId") Long questionId,
+			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,
+			@RequestParam(value = "questionImages", required = false) List<String> questionImages,
+			@RequestParam(value = "newImages", required = false) List<MultipartFile> newImages) {
+		return taskService.updateTaskQuestion(questionId, question, videoUrl, questionImages, newImages);
+
+	}
 }

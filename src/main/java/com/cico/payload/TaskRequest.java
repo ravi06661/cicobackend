@@ -19,9 +19,7 @@ public class TaskRequest {
 //	private List<TaskQuestion> question;
 
 	private Course course;
-
 	private Subject subject;
-
 	private String attachmentStatus;
 
 }

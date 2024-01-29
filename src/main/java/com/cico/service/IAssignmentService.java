@@ -11,7 +11,7 @@ import com.cico.payload.AssignmentSubmissionRequest;
 
 public interface IAssignmentService {
 
-	Assignment getAssignment(Long id);
+	ResponseEntity<?> getAssignment(Long id);
 
 	ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception;
 
@@ -26,11 +26,11 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getSubmitedAssignmetByStudentId(Integer studentId);
 
-	ResponseEntity<?> getAllSubmitedAssginments();
+	ResponseEntity<?> getAllSubmitedAssginments(Integer courseId, Integer subjectId, String status);
 
 	ResponseEntity<?> updateSubmitedAssignmentStatus(Long submissionId, String status, String review);
 
-	ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl, List<MultipartFile> questionImages,
+	ResponseEntity<?> addQuestionInAssignment(String question, String videoUrl, List<MultipartFile> questionImages,
 			Long assignmentId);
 
 	ResponseEntity<?> deleteTaskQuestion(Long questionId);
