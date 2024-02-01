@@ -32,4 +32,11 @@ public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 		       "JOIN c.subjects s ON s.isDeleted = 0 AND s.isActive = 1" +
 		       "WHERE c.courseId = :courseId AND c.isDeleted =0 AND s.isActive = 1")
 		List<SubjectResponse> getAllSubjectByCourseId(@Param("courseId") Integer courseId);
+	
+	@Query("SELECT s.subjectId, s.technologyStack.imageName, s.subjectName, c.chapterId, c.chapterName, er.scoreGet " +
+	        "FROM Subject s " +
+	        "LEFT JOIN s.chapters c ON c.isDeleted = 0 " +
+	        "LEFT JOIN ChapterExamResult er ON (er.chapter.chapterId = c.chapterId AND er.student.studentId = :studentId) " +
+	        "WHERE s.isDeleted = 0 AND s.subjectId = :subjectId ")
+	List<Object[]> getAllChapterWithSubjectIdAndStudentId(@Param("subjectId") Integer subjectId, @Param("studentId") Integer studentId);
 }

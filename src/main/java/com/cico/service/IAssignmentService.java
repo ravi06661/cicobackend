@@ -8,10 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.model.Assignment;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
+import com.cico.util.SubmissionStatus;
 
 public interface IAssignmentService {
 
-	Assignment getAssignment(Long id);
+	ResponseEntity<?> getAssignment(Long id);
 
 	ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception;
 
@@ -26,11 +27,11 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getSubmitedAssignmetByStudentId(Integer studentId);
 
-	ResponseEntity<?> getAllSubmitedAssginments();
+	ResponseEntity<?> getAllSubmitedAssginments(Integer courseId, Integer subjectId, SubmissionStatus status);
 
 	ResponseEntity<?> updateSubmitedAssignmentStatus(Long submissionId, String status, String review);
 
-	ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl, List<MultipartFile> questionImages,
+	ResponseEntity<?> addQuestionInAssignment(String question, String videoUrl, List<MultipartFile> questionImages,
 			Long assignmentId);
 
 	ResponseEntity<?> deleteTaskQuestion(Long questionId);

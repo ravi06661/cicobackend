@@ -73,9 +73,12 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 
 			return new ResponseEntity<>(collect, HttpStatus.OK);
 		} else {
+	//		List<AnnouncementResponseForAdmin> collect = announcementRepository.findAll().stream()
+		//			.map(obj -> (announcementFilterForAdmin(obj))).sort((o1,o2)->o1.getDate().compareTo(o2.getDate()).collect(Collectors.toList()));
 			List<AnnouncementResponseForAdmin> collect = announcementRepository.findAll().stream()
-					.map(obj -> (announcementFilterForAdmin(obj))).collect(Collectors.toList());
-
+				    .map(obj -> announcementFilterForAdmin(obj))
+				    .sorted((o1, o2) -> o1.getDate().compareTo(o2.getDate()))
+				    .collect(Collectors.toList());
 			return new ResponseEntity<>(collect, HttpStatus.OK);
 		}
 	}

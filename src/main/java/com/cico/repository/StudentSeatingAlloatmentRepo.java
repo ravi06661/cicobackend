@@ -15,13 +15,6 @@ import com.cico.model.StudentSeatingAlloatment;
 
 public interface StudentSeatingAlloatmentRepo extends JpaRepository<StudentSeatingAlloatment, Long> {
 
-//	@Query("SELECT a FROM   StudentSeatingAlloatment a WHERE a.seatNumber =:seatNumber")
-//	List<StudentSeatingAlloatment> findBySeatId(@Param("seatNumber") int seatNumber);
-
-//	@Query("SELECT a FROM   StudentSeatingAlloatment a WHERE a.studentId =:studentId AND a.seatNumber =:seatNumber")
-//	StudentSeatingAlloatment findByStudentIdSeatId(@Param("studentId") Integer studentId,
-//			@Param("seatNumber") int seatNumber);
-
 	@Query("SELECT a FROM StudentSeatingAlloatment a  WHERE a.seatAllocatedDate = :date")
 	List<StudentSeatingAlloatment>findAll(@Param("date")LocalDate date);
 	

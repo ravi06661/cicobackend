@@ -249,7 +249,7 @@ public class ChapterServiceImpl implements IChapterService {
 		Map<String, Object> response = new HashMap<>();
 
 		
-		if(!ch.isEmpty()  && ch.get(0)[1]!=null) {
+		if(!ch.isEmpty()) {
 			for (Object[] list : ch) {
 				ChapterContentResponse chapterContentResponse = new ChapterContentResponse();
 				chapterContentResponse.setContent((String) list[4]);
@@ -259,13 +259,11 @@ public class ChapterServiceImpl implements IChapterService {
 				chapterContentResponse.setChapterName((String) list[0]);
 				res.add(chapterContentResponse);
 			}
+		}
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 			response.put("chapterContent", res);
 			return new ResponseEntity<>(response, HttpStatus.OK);
-		}else {
-			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-		}
+		
 	}
 
 	@Override
@@ -296,7 +294,7 @@ public class ChapterServiceImpl implements IChapterService {
 		questionResponse.setOption1(question.getOption1());
 		questionResponse.setOption2(question.getOption2());
 		questionResponse.setOption3(question.getOption3());
-		questionResponse.setOption4(question.getOption3());
+		questionResponse.setOption4(question.getOption4());
 		questionResponse.setSelectedOption(question.getSelectedOption());
 		questionResponse.setQuestionId(question.getQuestionId());
 		questionResponse.setQuestionContent(question.getQuestionContent());

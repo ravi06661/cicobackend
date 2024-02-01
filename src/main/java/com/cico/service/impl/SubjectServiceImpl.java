@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.hibernate.tool.schema.internal.StandardForeignKeyExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,9 +58,19 @@ public class SubjectServiceImpl implements ISubjectService {
 		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
 
 		Subject save = subRepo.save(subject);
+
+		SubjectResponse res = new SubjectResponse();
+		res.setSubjectId(save.getSubjectId());
+		res.setSubjectName(save.getSubjectName());
+		TechnologyStackResponse techres = new TechnologyStackResponse();
+		techres.setId(save.getTechnologyStack().getId());
+		techres.setImageName(save.getTechnologyStack().getImageName());
+		techres.setTechnologyName(save.getTechnologyStack().getTechnologyName());
+
+		res.setTechnologyStack(techres);
 		if (Objects.nonNull(save)) {
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-			response.put("subject", save);
+			response.put("subject", res);
 			return new ResponseEntity<>(response, HttpStatus.CREATED);
 		}
 		response.put(AppConstants.MESSAGE, AppConstants.FAILED);
@@ -261,6 +270,32 @@ public class SubjectServiceImpl implements ISubjectService {
 		}
 		response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
 		response.put("subjects", list);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getAllChapterWithSubjectIdAndStudentId(Integer subjectId, Integer studentId) {
+
+		List<Object[]> allChapterWithSubjectId = subRepo.getAllChapterWithSubjectIdAndStudentId(subjectId, studentId);
+		Map<String, Object> response = new HashMap<>();
+   System.err.println(allChapterWithSubjectId);
+		if (!allChapterWithSubjectId.isEmpty() && allChapterWithSubjectId.get(0)[3] != (null)) {
+			List<ChapterResponse> chapterResponses = new ArrayList<>();
+			for (Object[] row : allChapterWithSubjectId) {
+				ChapterResponse chapterResponse = new ChapterResponse();
+				chapterResponse.setChapterId((Integer) row[3]);
+				chapterResponse.setChapterName((String) row[4]);
+				chapterResponse.setChapterImage((String) row[1]);
+				chapterResponse.setSubjectId(subjectId);
+				chapterResponse.setSubjectName((String) row[2]);
+				chapterResponse.setScoreGet((Integer) row[5]);
+
+				chapterResponses.add(chapterResponse);
+			}
+			response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
+			response.put("chapters", chapterResponses);
+
+		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

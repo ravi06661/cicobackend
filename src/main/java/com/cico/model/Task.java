@@ -31,7 +31,10 @@ public class Task {
 	private String taskAttachment;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<TaskQuestion> TaskQuestion = new ArrayList<>();;
+	private List<TaskQuestion> TaskQuestion = new ArrayList<>();
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<TaskSubmission> assignmentSubmissions;
 
 	@OneToOne
 	private Course course;

@@ -9,13 +9,8 @@ import com.cico.model.Student;
 
 @Repository
 public interface LikeRepo extends JpaRepository<Likes, Integer> {
-    
+
 	@Query("DELETE Likes  l   WHERE l.student=:student")
 	int deleteLike(Student student);
-
-
-    
-//	@Query("SELECT  l FROM LIKE  l WHERE l.student.studentId =:studentId AND l.d")
-//	Optional<Likes> findByStudentIdAndDiscussionFormId(Integer studentId, Integer discussionFormId);
 
 }

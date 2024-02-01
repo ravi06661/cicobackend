@@ -70,4 +70,9 @@ public class DiscussionFormController {
 	  return	discussionFormService.addCommentReply(studentId,commentsId,content,file);
 	}
 	
+	@GetMapping("searchingDiscussionForm")
+	public ResponseEntity<?>searchingDiscussionForm(@RequestParam("search")String search){
+		return this.discussionFormService.searchingDiscussionForm(search);
+	}
+	
 }

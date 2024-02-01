@@ -1,5 +1,6 @@
 package com.cico.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -7,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,11 +18,13 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.Exam;
 import com.cico.model.Question;
+import com.cico.payload.QuestionResponse;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.QuestionRepo;
 import com.cico.service.IFileService;
 import com.cico.service.IQuestionService;
+import com.cico.util.AppConstants;
 
 @Service
 public class QuestionServiceImpl implements IQuestionService {
@@ -72,9 +77,11 @@ public class QuestionServiceImpl implements IQuestionService {
 	}
 
 	@Override
-	public Question updateQuestion(Integer questionId, String questionContent, String option1, String option2,
+	public ResponseEntity<?> updateQuestion(Integer questionId, String questionContent, String option1, String option2,
 			String option3, String option4, String correctOption, MultipartFile image) {
 
+		Map<String, Object> response = new HashMap<>();
+System.out.println(option1+""+option2+""+option3+""+option4);
 		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 		if (questionContent != null)
@@ -112,7 +119,23 @@ public class QuestionServiceImpl implements IQuestionService {
 		} else {
 			question.setQuestionImage(question.getQuestionImage());
 		}
-		return questionRepo.save(question);
+		
+		 Question res = questionRepo.save(question);
+		 QuestionResponse  q = new QuestionResponse();
+		 q.setCorrectOption(res.getCorrectOption());
+		 q.setOption1(res.getOption1());
+		 q.setOption2(res.getOption2());
+		 q.setOption3(res.getOption3());
+		 q.setOption4(res.getOption4());
+		 q.setQuestionContent(res.getQuestionContent());
+		 q.setQuestionId(res.getQuestionId());
+		 q.setQuestionImage(res.getQuestionImage());
+		 
+		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
+		response.put("question",q);
+		
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
 
 	}
 
@@ -152,7 +175,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		if (questions.isEmpty())
 			new ResourceNotFoundException("No question available");
 
-		return questions.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
+		return questions.parallelStream().filter(obj -> !obj.getIsDeleted()).collect(Collectors.toList());
 	}
 
 	@Override
@@ -171,6 +194,5 @@ public class QuestionServiceImpl implements IQuestionService {
 		return this.questionRepo.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found with this id " + questionId));
 	}
-   
 
 }

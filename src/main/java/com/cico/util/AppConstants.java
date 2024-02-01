@@ -76,4 +76,6 @@ public class AppConstants {
 
 	public static final String TASK_NOT_FOUND = "task not found !!!";
 
+	public static final String EXAM_NOT_FOUND = "exam not found";
+
 }

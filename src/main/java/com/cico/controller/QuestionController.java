@@ -38,14 +38,14 @@ public class QuestionController {
 	}
 
 	@PutMapping("/updateQuestionById")
-	public ResponseEntity<Question> updateQuestion(@RequestParam("questionContent") String questionContent,
+	public ResponseEntity<?> updateQuestion(@RequestParam("questionContent") String questionContent,
 			@RequestParam("option1") String option1, @RequestParam("option2") String option2,
 			@RequestParam("option3") String option3, @RequestParam("option4") String option4,
 			@RequestParam("questionId") Integer questionId, @RequestParam("correctOption") String correctOption,
 			@RequestParam(name = "image", required = false) MultipartFile image) {
-		Question updateQuestion = questionService.updateQuestion(questionId, questionContent, option1, option2, option3,
+		 return  questionService.updateQuestion(questionId, questionContent, option1, option2, option3,
 				option4, correctOption, image);
-		return new ResponseEntity<Question>(updateQuestion, HttpStatus.OK);
+	
 	}
 
 	@GetMapping("/getAllQuestionByChapterId")
@@ -83,4 +83,6 @@ public class QuestionController {
 		List<Question> questions = questionService.getQuestionsByExam(examId);
 		return ResponseEntity.ok(questions);
 	}
+	
+	
 }

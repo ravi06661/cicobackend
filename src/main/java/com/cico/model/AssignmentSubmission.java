@@ -28,9 +28,9 @@ public class AssignmentSubmission {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long submissionId;
 
-	private Long assignmentId;
+	//private Long assignmentId;
 
-	private Long taskId;
+	//private Long taskId;
 
 	@OneToOne
 	private Student student;
@@ -44,7 +44,7 @@ public class AssignmentSubmission {
 
 	@Enumerated(EnumType.STRING)
 	private SubmissionStatus status;
-       
+	@Column(columnDefinition = "longtext")
 	private String review;
-    private String title;
+ //   private String title;
 }

@@ -1,5 +1,6 @@
 package com.cico.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -36,14 +37,14 @@ public class TaskQuestion {
     
 	@ElementCollection
 	@CollectionTable
-	private List<String> questionImages;
+	private List<String> questionImages = new ArrayList<>();;
 
 	private String videoUrl;
 	
 	//private Long  taskId;
 
-	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-	private List<TaskSubmission> assignmentSubmissions;
+//	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+//	private List<TaskSubmission> assignmentSubmissions;
 	
 	private Boolean isDeleted;
 }

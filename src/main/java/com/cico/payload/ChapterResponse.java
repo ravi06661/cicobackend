@@ -14,5 +14,6 @@ public class ChapterResponse {
 	private String chapterImage;
 	private Integer subjectId;
 	private String subjectName;
+	private Integer scoreGet;
 
 }

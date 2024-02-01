@@ -93,6 +93,12 @@ public class SubjectController {
 	public ResponseEntity<?> getAllChapterWithSubjectId(@RequestParam("subjectId") Integer subjectId) {
 		return subjectService.getAllChapterWithSubjectId(subjectId);
 
-	}
+	} 
 
+
+	@GetMapping("/getAllChapterWithSubjectIdAndStudentId")
+	public ResponseEntity<?> getAllChapterWithSubjectIdAndStudentId(@RequestParam("subjectId") Integer subjectId,@RequestParam("studentId") Integer studentId) {
+		return subjectService.getAllChapterWithSubjectIdAndStudentId(subjectId,studentId);
+
+	} 
 }
