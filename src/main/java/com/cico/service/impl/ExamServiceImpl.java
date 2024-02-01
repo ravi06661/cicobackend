@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -263,22 +264,24 @@ public class ExamServiceImpl implements IExamService {
 	@Override
 	public ResponseEntity<?> getChapterExamIsCompleteOrNot(Integer chapterId, Integer studentId) {
 		Map<String, Object> response = new HashMap<>();
-		
+
 		Optional<Chapter> chapterRes = chapterRepo.findById(chapterId);
-		
-		if(chapterRes.isPresent() && chapterRes.get().getExam()==null) {
-			response.put(AppConstants.MESSAGE, AppConstants.EXAM_NOT_FOUND);
-			return new ResponseEntity<>(response,HttpStatus.OK);
-		}
-		
-		ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId, studentId);
+
+	//	ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId, studentId);
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
 		Student student = studentRepository.findByStudentId(studentId);
 		Optional<ChapterExamResult> examResult = chapterExamResultRepo.findByChapterAndStudent(chapter, student);
-		response.put("chapterExamComplete", chapterCompleted);
-		if (examResult.isPresent()) {
+
+		if (chapterRes.isPresent() && chapterRes.get().getExam() == null) {
+			response.put(AppConstants.MESSAGE, AppConstants.EXAM_NOT_FOUND);
+			response.put(AppConstants.STATUS, false);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} else if (chapterRes.isPresent() && examResult.isPresent()) {
+			response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
 			response.put("resultId", examResult.get().getId());
+			response.put(AppConstants.STATUS, true);
 		}
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
