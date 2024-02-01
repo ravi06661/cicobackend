@@ -55,6 +55,7 @@ public class BatchServiceImpl implements IBatchService {
 		List<Batch> batches = course.getBatches();
 		batches.add(batch);
 		course.setBatches(batches);
+		System.err.println(request);
 		Course course2 = courseRepository.save(course);
 		if(Objects.nonNull(course2))
 			return new ApiResponse(Boolean.TRUE, BATCH_ADD_SUCCESS , HttpStatus.CREATED);
