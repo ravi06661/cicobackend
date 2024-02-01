@@ -19,7 +19,7 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer> {
 	Chapter findByChapterNameAndIsDeleted(@Param("chapterName") String chapterName,
 			@Param("isDeleted") boolean isDeleted);
 
-	@Query("SELECT  c.chapterName , cc.id,cc.title,cc.subTitle,cc.content FROM  Chapter c LEFT JOIN  c.chapterContent cc ON cc.isDeleted = 0   WHERE  c.chapterId =:chapterId ")
+	@Query("SELECT  c.chapterName , cc.id,cc.title,cc.subTitle,cc.content FROM  Chapter c LEFT JOIN  c.chapterContent cc ON cc.isDeleted = 0   WHERE  c.chapterId =:chapterId")
 	List<Object[]> getChapterContentWithChapterId(Integer chapterId);
 
 	Chapter findByChapterNameAndIsDeletedAndIsActiveTrue(String chapterName, boolean b);

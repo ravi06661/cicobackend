@@ -249,7 +249,7 @@ public class ChapterServiceImpl implements IChapterService {
 		Map<String, Object> response = new HashMap<>();
 
 		
-		if(!ch.isEmpty()  && ch.get(0)[1]!=null) {
+		if(!ch.isEmpty()) {
 			for (Object[] list : ch) {
 				ChapterContentResponse chapterContentResponse = new ChapterContentResponse();
 				chapterContentResponse.setContent((String) list[4]);

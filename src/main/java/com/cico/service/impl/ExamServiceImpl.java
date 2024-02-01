@@ -263,6 +263,14 @@ public class ExamServiceImpl implements IExamService {
 	@Override
 	public ResponseEntity<?> getChapterExamIsCompleteOrNot(Integer chapterId, Integer studentId) {
 		Map<String, Object> response = new HashMap<>();
+		
+		Optional<Chapter> chapterRes = chapterRepo.findById(chapterId);
+		
+		if(chapterRes.isPresent() && chapterRes.get().getExam()==null) {
+			response.put(AppConstants.MESSAGE, AppConstants.EXAM_NOT_FOUND);
+			return new ResponseEntity<>(response,HttpStatus.OK);
+		}
+		
 		ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId, studentId);
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
 		Student student = studentRepository.findByStudentId(studentId);

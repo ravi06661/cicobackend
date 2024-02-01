@@ -31,6 +31,8 @@ public interface ISubjectService {
 
 	ResponseEntity<?> getAllSubjectsByCourseId(Integer courseId);
 
+	ResponseEntity<?> getAllChapterWithSubjectIdAndStudentId(Integer subjectId, Integer studentId);
+
 //	List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId);
 
 }

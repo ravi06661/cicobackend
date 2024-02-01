@@ -17,7 +17,7 @@ public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, 
 
 	@Query("SELECT ts.review, ts.status, ts.submissionDate, ts.submittionFileName, ts.taskDescription, t.taskId, t.taskName "
 			+ "FROM Task t JOIN t.assignmentSubmissions ts " + "WHERE ts.student.studentId = :studentId "
-			+ "ORDER BY ts.submissionDate ASC")
+			+ "ORDER BY ts.submissionDate DESC")
 	List<Object[]> getSubmitedTaskForStudent(@Param("studentId") Integer studentId);
 
 	@Transactional

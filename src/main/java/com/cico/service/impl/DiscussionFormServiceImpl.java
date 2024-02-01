@@ -37,8 +37,6 @@ import com.cico.repository.LikeRepo;
 import com.cico.repository.StudentRepository;
 import com.cico.service.IFileService;
 import com.cico.service.IdiscussionForm;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class DiscussionFormServiceImpl implements IdiscussionForm {

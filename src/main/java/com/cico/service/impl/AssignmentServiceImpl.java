@@ -150,7 +150,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			submission.setSubmissionDate(LocalDateTime.now());
 			submission.setStatus(SubmissionStatus.Unreviewed);
 			if (Objects.nonNull(file)) {
-				String fileName = fileServiceImpl.uploadFileInFolder(file, QUESTION_IMAGES_DIR);
+				String fileName = fileServiceImpl.uploadFileInFolder(file,ATTACHMENT_FILES_DIR);
 				submission.setSubmitFile(fileName);
 			}
 			AssignmentSubmission save = submissionRepository.save(submission);
@@ -403,7 +403,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			res.setId(obj.getId());
 			res.setTitle(obj.getTitle());
 			res.setTaskQuestion(obj.getAssignmentQuestion().stream()
-					.map(obj2 -> new AssignmentTaskFilterReponse(obj2.getQuestionId())).collect(Collectors.toList()));
+					.map(obj2 -> new AssignmentTaskFilterReponse(obj2,studentId)).collect(Collectors.toList()));
 			res.setTotalTaskCompleted(
 					(int) obj.getAssignmentQuestion().stream().flatMap(obj2 -> obj2.getAssignmentSubmissions().stream())
 							.filter(obj3 -> obj3.getStudent().getStudentId() == studentId).count());
@@ -502,8 +502,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
-			res.put("status", "no_found");
-			res.put("data", null);
+			res.put("status",AppConstants.NO_DATA_FOUND);
 			return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
 		}
 

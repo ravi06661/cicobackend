@@ -262,7 +262,7 @@ public class TaskServiceImpl implements ITaskService {
 	@Override
 	public ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId, SubmissionStatus status) {
 		List<AssignmentSubmissionResponse> res = taskRepo.findAllSubmissionTaskWithCourseIdAndSubjectId(courseId,
-				subjectId,status);
+				subjectId, status);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 

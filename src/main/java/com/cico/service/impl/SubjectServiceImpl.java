@@ -272,4 +272,30 @@ public class SubjectServiceImpl implements ISubjectService {
 		response.put("subjects", list);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> getAllChapterWithSubjectIdAndStudentId(Integer subjectId, Integer studentId) {
+
+		List<Object[]> allChapterWithSubjectId = subRepo.getAllChapterWithSubjectIdAndStudentId(subjectId, studentId);
+		Map<String, Object> response = new HashMap<>();
+   System.err.println(allChapterWithSubjectId);
+		if (!allChapterWithSubjectId.isEmpty() && allChapterWithSubjectId.get(0)[3] != (null)) {
+			List<ChapterResponse> chapterResponses = new ArrayList<>();
+			for (Object[] row : allChapterWithSubjectId) {
+				ChapterResponse chapterResponse = new ChapterResponse();
+				chapterResponse.setChapterId((Integer) row[3]);
+				chapterResponse.setChapterName((String) row[4]);
+				chapterResponse.setChapterImage((String) row[1]);
+				chapterResponse.setSubjectId(subjectId);
+				chapterResponse.setSubjectName((String) row[2]);
+				chapterResponse.setScoreGet((Integer) row[5]);
+
+				chapterResponses.add(chapterResponse);
+			}
+			response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
+			response.put("chapters", chapterResponses);
+
+		}
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }
