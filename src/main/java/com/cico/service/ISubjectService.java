@@ -15,7 +15,7 @@ public interface ISubjectService {
 
 	void addChapterToSubject(Integer subjectId, String chapterName);
 
-	ResponseEntity<?> updateSubject(SubjectResponse subject) throws Exception;
+	ResponseEntity<?> updateSubject(SubjectResponse subject);
 
 	Map<String, Object> getSubjectById(Integer subjectId);
 

@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Assignment;
 import com.cico.model.AssignmentSubmission;
@@ -55,7 +56,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Value("${questionImages}")
 	private String QUESTION_IMAGES_DIR;
-
 	@Value("${attachmentFiles}")
 	private String ATTACHMENT_FILES_DIR;
 
@@ -83,7 +83,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception {
+	public ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) {
 
 		Optional<Assignment> obj = assignmentRepository.findByName(assignmentRequest.getTitle().trim());
 		Map<String, Object> response = new HashMap<>();
@@ -104,7 +104,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			response.put("assignmentId", savedAssignment.getId());
 			return new ResponseEntity<>(response, HttpStatus.CREATED);
 		} else {
-			throw new Exception("Assignmnet Already Present With This Title");
+			throw new ResourceAlreadyExistException("Assignmnet Already Present With This Title");
 		}
 	}
 
@@ -137,7 +137,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) ////
-			throws Exception {
+			{
 
 		Optional<AssignmentTaskQuestion> obj = assignmentTaskQuestionRepository.findByQuestionId(readValue.getTaskId());
 		boolean anyMatch = obj.get().getAssignmentSubmissions().parallelStream()
@@ -158,7 +158,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignmentTaskQuestionRepository.save(obj.get());
 			return new ResponseEntity<>(HttpStatus.CREATED);
 		} else {
-			throw new Exception("ALREADY THIS ASSIGNMENT TASK SUBMITED!!");
+			throw new ResourceAlreadyExistException("ALREADY THIS ASSIGNMENT TASK SUBMITED!!");
 		}
 	}
 

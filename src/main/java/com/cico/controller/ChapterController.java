@@ -30,7 +30,7 @@ public class ChapterController {
 	@PostMapping("/addChapter")
 	public ResponseEntity<?> addChapter(@RequestParam("subjectId") Integer subjectId,
 			@RequestParam("chapterName") String chapterName,
-			@RequestParam(name = "image", required = false) MultipartFile image) throws Exception {
+			@RequestParam(name = "image", required = false) MultipartFile image)  {
 		return chapterService.addChapter(subjectId, chapterName, image);
 	}
 
@@ -65,7 +65,7 @@ public class ChapterController {
 
 	@PutMapping("/updateChapter")
 	public ResponseEntity<?> updateChapter(@RequestParam("chapterId") Integer chapterId,
-			@RequestParam("chapterName") String chapterName) throws Exception {
+			@RequestParam("chapterName") String chapterName) {
 		return chapterService.updateChapter(chapterId, chapterName);
 	}
 

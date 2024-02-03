@@ -14,7 +14,7 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAssignment(Long id);
 
-	ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception;
+	ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) ;
 
 	// ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest
 	// questionRequest);
@@ -23,7 +23,7 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAssignmentQuesById(Long questionId);
 
-	ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) throws Exception;
+	ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue);
 
 	ResponseEntity<?> getSubmitedAssignmetByStudentId(Integer studentId);
 

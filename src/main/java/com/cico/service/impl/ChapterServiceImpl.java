@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterContent;
@@ -48,11 +49,11 @@ public class ChapterServiceImpl implements IChapterService {
 	FileServiceImpl fileServiceImpl;
 
 	@Override
-	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) throws Exception {
+	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName, MultipartFile image) {
 		Chapter obj = chapterRepo.findByChapterNameAndIsDeleted(chapterName, false);
 		Map<String, Object> response = new HashMap<>();
 		if (Objects.nonNull(obj)) {
-			throw new Exception("Chapter already present with name..");
+			throw new ResourceAlreadyExistException("Chapter already present with name..");
 		}
 		Subject subject = subjectRepo.findById(subjectId).get();
 
@@ -79,13 +80,13 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public ResponseEntity<?> updateChapter(Integer chapterId, String chapterName) throws Exception {
+	public ResponseEntity<?> updateChapter(Integer chapterId, String chapterName)  {
 		Map<String, Object> response = new HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 
 		if (chapter.getChapterName().equals(chapterName.trim())) {
-			throw new Exception("Chapter already present with name..");
+			throw new ResourceAlreadyExistException("Chapter already present with name..");
 		}
 
 		chapter.setChapterName(chapterName.trim());
@@ -198,10 +199,10 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public ChapterContent getChapterContent(Integer chapterContentId) throws Exception {
+	public ChapterContent getChapterContent(Integer chapterContentId){
 		Optional<ChapterContent> obj = this.chapterContentRepository.findById(chapterContentId);
 		if (obj.isEmpty())
-			throw new Exception("Chapter content not found");
+			throw new ResourceNotFoundException("Chapter content not found");
 		return obj.get();
 	}
 

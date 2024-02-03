@@ -22,7 +22,7 @@ public interface ITaskService {
 
 	List<Task> getAllTask();
 	
-	ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file, String taskDescription) throws Exception;
+	ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file, String taskDescription);
 
 	ResponseEntity<?> addQuestionInTask(String question, String videoUrl, List<MultipartFile> questionImages,
 			Long taskId);
