@@ -10,21 +10,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cico.model.AssignmentTaskQuestion;
-import com.cico.payload.AssignmentTaskFilterReponse;
 
 @Repository
 public interface AssignmentTaskQuestionRepository extends JpaRepository<AssignmentTaskQuestion, Integer> {
 
 	Optional<AssignmentTaskQuestion> findByQuestionId(Long questionId);
 	
-
-	
-//	@Query("SELECT NEW com.cico.payload.AssignmentTaskFilterReponse(a.questionId, a.question, a.videoUrl, a.questionImages) FROM AssignmentTaskQuestion a WHERE a.questionId =:questionId AND a.isDeleted = 0 ")
-//	AssignmentTaskFilterReponse findQuestionId(@Param("questionId") Long questionId);
-//	@Query("SELECT NEW com.cico.payload.AssignmentTaskFilterReponse(a.questionId, a.question, a.videoUrl, a.questionImages) FROM AssignmentTaskQuestion  a WHERE a.questionId =:questionId AND a.isDeleted = 0 ")
-//	AssignmentTaskFilterReponse findQuestionId(@Param("questionId") Long questionId);
-
-
 	@Modifying
 	@Transactional
 	@Query("UPDATE AssignmentTaskQuestion a set a.isDeleted = 1 WHERE a.questionId =:questionId")

@@ -163,7 +163,6 @@ public class SubjectServiceImpl implements ISubjectService {
 
 		if (subject.getIsActive().equals(true))
 			subject.setIsActive(false);
-
 		else
 			subject.setIsActive(true);
 
