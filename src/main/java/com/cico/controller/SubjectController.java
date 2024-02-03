@@ -42,7 +42,7 @@ public class SubjectController {
 	}
 
 	@PutMapping("/updateSubject")
-	public ResponseEntity<?> updateSubject(@RequestBody SubjectResponse subject) throws Exception {
+	public ResponseEntity<?> updateSubject(@RequestBody SubjectResponse subject) {
 		return subjectService.updateSubject(subject);
 
 	}

@@ -97,7 +97,7 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@SuppressWarnings("unlikely-arg-type")
 	@Override
-	public ResponseEntity<?> updateSubject(SubjectResponse subjectResponse) throws Exception {
+	public ResponseEntity<?> updateSubject(SubjectResponse subjectResponse) {
 
 		subRepo.findBySubjectIdAndIsDeleted(subjectResponse.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));

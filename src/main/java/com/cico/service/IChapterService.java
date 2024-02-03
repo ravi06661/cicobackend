@@ -12,9 +12,9 @@ import com.cico.model.Subject;
 
 public interface IChapterService {
 
-	ResponseEntity<?> addChapter(Integer subjectId,String chapterName,MultipartFile image) throws Exception;
+	ResponseEntity<?> addChapter(Integer subjectId,String chapterName,MultipartFile image) ;
 
-	ResponseEntity<?> updateChapter(Integer chapterId,String chapterName) throws Exception;
+	ResponseEntity<?> updateChapter(Integer chapterId,String chapterName);
 
 	Map<String, Object> getChapterById(Integer chapterId);
 
@@ -30,7 +30,7 @@ public interface IChapterService {
 
 	ChapterContent updateChapterContent(String title, String subTitle, String content,Integer contentId);
 
-	ChapterContent getChapterContent(Integer chapterContentId) throws Exception;
+	ChapterContent getChapterContent(Integer chapterContentId);
 
 	void deleteChapterContent(Integer contentId);
 

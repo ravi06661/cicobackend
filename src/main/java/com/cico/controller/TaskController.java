@@ -70,15 +70,16 @@ public class TaskController {
 
 	@PostMapping("/addQuestionInTask")
 	public ResponseEntity<?> addQuestionInTask(@RequestParam("taskId") Long taskId,
-			@RequestParam("question") String question, @RequestParam(value =  "videoUrl" ,required = false) String videoUrl,
-			@RequestParam(value = "questionImages",required = false) List<MultipartFile> questionImages) {
+			@RequestParam("question") String question,
+			@RequestParam(value = "videoUrl", required = false) String videoUrl,
+			@RequestParam(value = "questionImages", required = false) List<MultipartFile> questionImages) {
 		return taskService.addQuestionInTask(question, videoUrl, questionImages, taskId);
 
 	}
 
 	@PostMapping("/addTaskAttachment")
 	public ResponseEntity<?> addTaskAttachment(@RequestParam("taskId") Long taskId,
-			@RequestParam(value = "attachment",required = false) MultipartFile attachment) {
+			@RequestParam(value = "attachment", required = false) MultipartFile attachment) {
 		return this.taskService.addTaskAttachment(taskId, attachment);
 	}
 
@@ -92,11 +93,10 @@ public class TaskController {
 		return taskService.getSubmitedTaskForStudent(studentId);
 	}
 
-	
 	@GetMapping("/getAllSubmitedTask")
 	public ResponseEntity<?> getAllSubmitedTasks(@RequestParam("courseId") Integer courseId,
-			@RequestParam("subjectId") Integer subjectId,@RequestParam("status")SubmissionStatus status) {
-		return taskService.getAllSubmitedTasks(courseId, subjectId,status);
+			@RequestParam("subjectId") Integer subjectId, @RequestParam("status") SubmissionStatus status) {
+		return taskService.getAllSubmitedTasks(courseId, subjectId, status);
 	}
 
 	@GetMapping("/getAllSubmissionTaskStatus")
@@ -120,23 +120,23 @@ public class TaskController {
 			@RequestParam("studentId") Integer studentId) {
 		return taskService.isTaskSubmitted(taskId, studentId);
 	}
-	
+
 	@GetMapping("/getSubmissionTaskById")
-	public ResponseEntity<?>getSubmissionTaskById(@RequestParam("id")Long id){
+	public ResponseEntity<?> getSubmissionTaskById(@RequestParam("id") Long id) {
 		return taskService.getSubmissionTaskById(id);
 	}
 
-	
 	@GetMapping("/getTaskQuestion")
-	public ResponseEntity<?>getTaskQuestion(@RequestParam("questionId") long questionId){
+	public ResponseEntity<?> getTaskQuestion(@RequestParam("questionId") long questionId) {
 		return taskService.getTaskQuestion(questionId);
 	}
+
 	@GetMapping("/getAllSubmissionTaskStatusByCourseIdAndSubjectId")
-	public ResponseEntity<?>getAllSubmissionTaskStatusByCourseIdAndSubjectId(@RequestParam("courseId") Integer courseId,
-			@RequestParam("subjectId") Integer subjectId){
-		return taskService.getAllSubmissionTaskStatusByCourseIdAndSubjectId(courseId,subjectId);
+	public ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(
+			@RequestParam("courseId") Integer courseId, @RequestParam("subjectId") Integer subjectId) {
+		return taskService.getAllSubmissionTaskStatusByCourseIdAndSubjectId(courseId, subjectId);
 	}
-	
+
 	@PutMapping("/updateTaskQuestion")
 	public ResponseEntity<?> updateTaskQuestion(@RequestParam("questionId") Long questionId,
 			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,

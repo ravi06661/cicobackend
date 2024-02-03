@@ -181,7 +181,7 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
-			String taskDescription) throws Exception {
+			String taskDescription)  {
 		TaskSubmission obj = taskSubmissionRepository.findByTaskIdAndStudentId(taskId, studentId);
 		Optional<Task> task = taskRepo.findByTaskIdAndIsDeletedFalse(taskId);
 //		if (Objects.nonNull(obj) && obj.getStatus().name().equals("Rejected") || !Objects.nonNull(obj)) {
@@ -204,7 +204,7 @@ public class TaskServiceImpl implements ITaskService {
 			} else
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} else {
-			throw new Exception("ALREADY TASK SUBMITED");
+			throw new ResourceAlreadyExistException("ALREADY TASK SUBMITED");
 		}
 	}
 

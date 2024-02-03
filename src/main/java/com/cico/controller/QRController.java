@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
-import com.cico.payload.ApiResponse;
-import com.cico.payload.JwtResponse;
 import com.cico.payload.QRResponse;
 import com.cico.security.JwtUtil;
 import com.cico.service.IQRService;

@@ -110,6 +110,7 @@ public class QRServiceImpl implements IQRService {
 	}
 
 	public void jobEnd(String qrKey, String message) {
+		System.err.println("--");
 		messageSendingOperations.convertAndSend("/queue/messages-" + qrKey, message);
 	}
 
