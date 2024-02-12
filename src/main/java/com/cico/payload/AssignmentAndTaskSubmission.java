@@ -23,6 +23,32 @@ public class AssignmentAndTaskSubmission {
 	private String assignmentTitle;
 	private String description;
 
+	public AssignmentAndTaskSubmission(Long taskId, Long totalSubmitted, Long unReveiwed, Long reveiwed,
+			String taskTitle,Boolean status) {
+		super();
+		this.taskId = taskId;
+		this.totalSubmitted = totalSubmitted;
+		this.unReveiwed = unReveiwed;
+		this.reveiwed = reveiwed;
+		this.taskTitle = taskTitle;
+		this.status = status;
+
+	}
+
+	public AssignmentAndTaskSubmission(Long taskId, Long totalSubmitted, Long unReveiwed, Long reveiwed, Long taskCount,
+			String taskTitle, Long assignmentId, String assignmentTitle,Boolean status) {
+		super();
+		this.taskId = taskId;
+		this.totalSubmitted = totalSubmitted;
+		this.unReveiwed = unReveiwed;
+		this.reveiwed = reveiwed;
+		this.taskTitle = taskTitle;
+		this.taskCount = taskCount;
+		this.assignmentTitle = assignmentTitle;
+		this.assignmentId = assignmentId;
+		this.status = status;
+	}
+
 	public AssignmentAndTaskSubmission(String taskTitle, Long taskId, Long totalSubmitted, Long unReveiwed,
 			Long reveiwed) {
 		super();

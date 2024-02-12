@@ -1,5 +1,6 @@
 package com.cico.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class Task {
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<TaskQuestion> TaskQuestion = new ArrayList<>();
-	
+
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<TaskSubmission> assignmentSubmissions;
 
@@ -44,5 +45,9 @@ public class Task {
 
 	private String attachmentStatus;
 
-	private Boolean isDeleted;
+	private Boolean isDeleted =false;
+	private Boolean isActive =true;
+
+	private LocalDateTime createdDate;
+	private LocalDateTime updatedDate;
 }

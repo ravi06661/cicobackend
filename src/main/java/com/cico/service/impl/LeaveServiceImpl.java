@@ -49,6 +49,9 @@ public class LeaveServiceImpl implements ILeaveService {
 
 	@Autowired
 	private LeaveRepository leavesRepository;
+	
+	@Autowired
+	private StudentServiceImpl studentServiceImpl;
 
 	@Autowired
 	private ModelMapper mapper;
@@ -171,10 +174,16 @@ public class LeaveServiceImpl implements ILeaveService {
 					PageRequest.of(page, size, Sort.by(Direction.DESC, "leaveId")));
 
 			for (Leaves leaves : StudentLeaves.getContent()) {
+				if ( leaves.getLeaveStatus() == 0  && ChronoUnit.DAYS.between(leaves.getLeaveEndDate(), LocalDateTime.now()) >=1) {
+					studentServiceImpl.approveStudentLeaveReqeust(studentId, leaves.getLeaveId(), "deny");
+					leaves.setLeaveStatus(2);
+				//leaves.setLeaveStatusChangeDate(LocalDateTime.now());
+				}
+
 				LeaveResponse responseData = mapper.map(leaves, LeaveResponse.class);
 				responseData.setLeaveType(leaveTypeRepository.findById(leaves.getLeaveTypeId()).get());
 				leavesResponse.add(responseData);
-				
+
 			}
 
 			int totalLeaves = leavesRepository.countByStudentId(studentId);

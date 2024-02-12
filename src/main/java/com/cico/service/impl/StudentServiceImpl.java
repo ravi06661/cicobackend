@@ -123,11 +123,11 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private ModelMapper mapper;
 
-	@Value("${fileUploadPath}")
-	private String IMG_UPLOAD_DIR;
-
-	@Value("${workReportUploadPath}")
-	private String WORK_UPLOAD_DIR;
+//	@Value("${fileUploadPath}")
+//	private String IMG_UPLOAD_DIR;
+//
+//	@Value("${workReportUploadPath}")
+//	private String WORK_UPLOAD_DIR;
 
 	@Autowired
 	private BCryptPasswordEncoder encoder;
@@ -463,7 +463,7 @@ public class StudentServiceImpl implements IStudentService {
 						checkInAttenedanceData.setCheckInLat(latitude);
 						checkInAttenedanceData.setCheckInLong(longitude);
 //						String savePath = helperService.saveImage(studentImage, IMG_UPLOAD_DIR);
-						String imageName = fileService.uploadFileInFolder(studentImage, IMG_UPLOAD_DIR);
+						String imageName = fileService.uploadFileInFolder(studentImage, AppConstants.ATTENDANCE_IMAGES);
 						checkInAttenedanceData.setCheckInImage(imageName);
 						checkInAttenedanceData.setCreatedDate(LocalDateTime.now());
 						checkInAttenedanceData.setUpdatedDate(LocalDateTime.now());
@@ -528,7 +528,7 @@ public class StudentServiceImpl implements IStudentService {
 								attendanceData.setCheckOutTime(LocalTime.now());
 								attendanceData.setCheckOutLat(latitude);
 								attendanceData.setCheckOutLong(longitude);
-								String imageName = fileService.uploadFileInFolder(studentImage, IMG_UPLOAD_DIR);
+								String imageName = fileService.uploadFileInFolder(studentImage, AppConstants.ATTENDANCE_IMAGES);
 								attendanceData.setCheckOutImage(imageName);
 								attendanceData.setWorkingHour(workingHours);
 								attendanceData.setCheckOutStatus("Approved");
@@ -539,7 +539,7 @@ public class StudentServiceImpl implements IStudentService {
 								StudentWorkReport studentWorkReport = new StudentWorkReport();
 								studentWorkReport.setAttendanceId(saveAttendenceCheckOutData.getAttendanceId());
 								if (Objects.nonNull(attachment) && (!attachment.getOriginalFilename().equals(""))) {
-									String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
+									String workImageName = fileService.uploadFileInFolder(attachment, AppConstants.ATTENDANCE_IMAGES);
 									studentWorkReport.setAttachment(workImageName);
 								}
 								studentWorkReport.setWorkReport(workReport);
@@ -737,7 +737,7 @@ public class StudentServiceImpl implements IStudentService {
 					StudentWorkReport studentWorkReport = new StudentWorkReport();
 					studentWorkReport.setAttendanceId(saveAttdance.getAttendanceId());
 					if (Objects.nonNull(attachment) && (!attachment.getOriginalFilename().equals(""))) {
-						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
+						String workImageName = fileService.uploadFileInFolder(attachment, AppConstants.ATTENDANCE_IMAGES);
 						studentWorkReport.setAttachment(workImageName);
 					}
 					studentWorkReport.setWorkReport(workReport);
@@ -876,7 +876,7 @@ public class StudentServiceImpl implements IStudentService {
 					checkoutResponseDto.setCheckoutLong(longitude);
 
 //					String savePath = helperService.saveImage(studentImage, IMG_UPLOAD_DIR);
-					String imageName = fileService.uploadFileInFolder(studentImage, IMG_UPLOAD_DIR);
+					String imageName = fileService.uploadFileInFolder(studentImage, AppConstants.ATTENDANCE_IMAGES);
 					checkoutResponseDto.setCheckoutImage(imageName);
 
 					checkoutResponseDto.setWorkingHour(workingHours);
@@ -897,7 +897,7 @@ public class StudentServiceImpl implements IStudentService {
 					StudentWorkReport studentWorkReport = new StudentWorkReport(0, attendance.getAttendanceId(),
 							workReport, LocalDateTime.now());
 					if (Objects.nonNull(attachment) && (!attachment.getOriginalFilename().equals(""))) {
-						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
+						String workImageName = fileService.uploadFileInFolder(attachment, AppConstants.ATTENDANCE_IMAGES);
 						studentWorkReport.setAttachment(workImageName);
 					}
 
@@ -1049,7 +1049,7 @@ public class StudentServiceImpl implements IStudentService {
 				student.setEmail(email);
 			}
 			if (!(profilePic.isEmpty()) && !(profilePic.getOriginalFilename().equals(""))) {
-				String imageName = fileService.uploadFileInFolder(profilePic, IMG_UPLOAD_DIR);
+				String imageName = fileService.uploadFileInFolder(profilePic, AppConstants.ATTENDANCE_IMAGES);
 				student.setProfilePic(imageName);
 			}
 

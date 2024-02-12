@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,10 @@ import com.cico.model.ChapterExamResult;
 import com.cico.model.Exam;
 import com.cico.model.Question;
 import com.cico.model.Student;
-import com.cico.payload.ChapterExamResultRequest;
+import com.cico.model.Subject;
+import com.cico.model.SubjectExamResult;
 import com.cico.payload.ChapterExamResultResponse;
+import com.cico.payload.ExamRequest;
 import com.cico.payload.ExamResultResponse;
 import com.cico.payload.QuestionResponse;
 import com.cico.repository.ChapterCompletedRepository;
@@ -34,6 +35,9 @@ import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.QuestionRepo;
 import com.cico.repository.StudentRepository;
+import com.cico.repository.SubjectExamRepo;
+import com.cico.repository.SubjectExamResultRepo;
+import com.cico.repository.SubjectRepository;
 import com.cico.service.IExamService;
 import com.cico.service.IFileService;
 import com.cico.util.AppConstants;
@@ -53,8 +57,8 @@ public class ExamServiceImpl implements IExamService {
 	@Autowired
 	private IFileService fileService;
 
-	@Value("${fileUploadPath}")
-	private String IMG_UPLOAD_DIR;
+//	@Value("${fileUploadPath}")
+//	private String IMG_UPLOAD_DIR;
 	@Autowired
 	private ChapterExamResultRepo chapterExamResultRepo;
 
@@ -68,18 +72,14 @@ public class ExamServiceImpl implements IExamService {
 	@Autowired
 	private ChapterCompletedRepository chapterCompletedRepository;
 
-//	@Override
-//	public void addExam(String examName) {
-//		Exam exam = examRepo.findByExamNameAndIsDeleted(examName, false);
-//
-//		if (Objects.nonNull(exam))
-//			throw new ResourceAlreadyExistException("Exam already exist");
-//
-//		exam = new Exam();
-//		exam.setExamName(examName);
-//		examRepo.save(exam);
-//
-//	}
+	@Autowired
+	private SubjectExamRepo subjectExamRepo;
+
+	@Autowired
+	private SubjectExamResultRepo subjectExamResultRepo;
+
+	@Autowired
+	private SubjectRepository subjectRepository;
 
 	@Override
 	public void addQuestionsToExam(Integer examId, String question, List<String> options, MultipartFile image) {
@@ -156,20 +156,7 @@ public class ExamServiceImpl implements IExamService {
 	}
 
 	@Override
-	public List<Exam> getExamsByChapter(Integer chapterId) {
-//		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
-//				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-//
-//		if (chapter.getExams().isEmpty())
-//			throw new ResourceNotFoundException("No exam available for Chapter : " + chapter.getChapterName());
-//
-//		return chapter.getExams();
-		return null;
-
-	}
-
-	@Override
-	public ResponseEntity<?> addChapterExamResult(ChapterExamResultRequest chapterExamResult) {
+	public ResponseEntity<?> addChapterExamResult(ExamRequest chapterExamResult) {
 		Student student = studentRepository.findById(chapterExamResult.getStudentId()).get();
 		Chapter chapter = chapterRepo.findById(chapterExamResult.getChapterId()).get();
 
@@ -223,6 +210,59 @@ public class ExamServiceImpl implements IExamService {
 	}
 
 	@Override
+	public ResponseEntity<?> addSubjectExamResult(ExamRequest request) {
+		Student student = studentRepository.findById(request.getStudentId()).get();
+		Subject subject = subjectRepository.findById(request.getSubjectId()).get();
+
+		Optional<SubjectExamResult> result = subjectExamResultRepo.findBySubjectAndStudent(subject, student);
+		if (result.isPresent())
+			throw new ResourceAlreadyExistException("Your Are Already Submited This Test");
+
+		SubjectExamResult examResult = new SubjectExamResult();
+		Map<Integer, String> review = request.getReview();
+		int correct = 0;
+		int inCorrect = 0;
+		examResult.setSubject(subject);
+		examResult.setStudent(student);
+
+		List<Question> questions = subject.getExam().getQuestions();
+		questions = questions.parallelStream().filter(obj -> !obj.getIsDeleted()).collect(Collectors.toList());
+
+		for (Question q : questions) {
+//	    	if(!review.containsKey(q.getQuestionId())) {
+//	    		 review.put(q.getQuestionId()," ");
+//	    	}
+			Integer id = q.getQuestionId();
+			String correctOption = q.getCorrectOption();
+
+			if (!review.isEmpty()) {
+				String reviewAns = review.get(id);
+				if (Objects.nonNull(reviewAns)) {
+					if (review.get(id).equals(correctOption)) {
+						correct++;
+					} else {
+						inCorrect++;
+					}
+				}
+			}
+		}
+		examResult.setReview(review);
+		examResult.setCorrecteQuestions(correct);
+		examResult.setWrongQuestions(inCorrect);
+		examResult.setNotSelectedQuestions(questions.size() - (correct + inCorrect));
+		examResult.setScoreGet(correct - inCorrect);
+		examResult.setTotalQuestion(questions.size());
+		SubjectExamResult save = subjectExamResultRepo.save(examResult);
+
+		ChapterCompleted chapterCompleted = new ChapterCompleted();
+		chapterCompleted.setChapterId(request.getChapterId());
+		chapterCompleted.setStudentId(request.getStudentId());
+		chapterCompleted.setSubjectId(request.getSubjectId());
+		chapterCompletedRepository.save(chapterCompleted);
+		return new ResponseEntity<>(save, HttpStatus.OK);
+	}
+
+	@Override
 	public ResponseEntity<?> getChapterExamResult(Integer id) {
 
 		Map<String, Object> response = new HashMap<>();
@@ -240,6 +280,30 @@ public class ExamServiceImpl implements IExamService {
 		chapterExamResultResponse.setScoreGet(examResult.getScoreGet());
 
 		List<QuestionResponse> questions = examResult.getChapter().getExam().getQuestions().parallelStream()
+				.map(obj -> questionFilter(obj)).collect(Collectors.toList());
+		response.put("examResult", chapterExamResultResponse);
+		response.put("questions", questions);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getSubjectExamResult(Integer subjectId) {
+
+		Map<String, Object> response = new HashMap<>();
+
+		SubjectExamResult examResult = subjectExamResultRepo.findById(subjectId)
+				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+		ChapterExamResultResponse chapterExamResultResponse = new ChapterExamResultResponse();
+
+		chapterExamResultResponse.setCorrecteQuestions(examResult.getCorrecteQuestions());
+		chapterExamResultResponse.setId(examResult.getId());
+		chapterExamResultResponse.setNotSelectedQuestions(examResult.getNotSelectedQuestions());
+		chapterExamResultResponse.setReview(examResult.getReview());
+		chapterExamResultResponse.setWrongQuestions(examResult.getWrongQuestions());
+		chapterExamResultResponse.setTotalQuestion(examResult.getTotalQuestion());
+		chapterExamResultResponse.setScoreGet(examResult.getScoreGet());
+
+		List<QuestionResponse> questions = examResult.getSubject().getExam().getQuestions().parallelStream()
 				.map(obj -> questionFilter(obj)).collect(Collectors.toList());
 		response.put("examResult", chapterExamResultResponse);
 		response.put("questions", questions);
@@ -266,8 +330,6 @@ public class ExamServiceImpl implements IExamService {
 		Map<String, Object> response = new HashMap<>();
 
 		Optional<Chapter> chapterRes = chapterRepo.findById(chapterId);
-
-	//	ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId, studentId);
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
 		Student student = studentRepository.findByStudentId(studentId);
 		Optional<ChapterExamResult> examResult = chapterExamResultRepo.findByChapterAndStudent(chapter, student);
@@ -276,13 +338,41 @@ public class ExamServiceImpl implements IExamService {
 			response.put(AppConstants.MESSAGE, AppConstants.EXAM_NOT_FOUND);
 			response.put(AppConstants.STATUS, false);
 			return new ResponseEntity<>(response, HttpStatus.OK);
-		} else if (chapterRes.isPresent() && examResult.isPresent()) {
+		} else if (chapterRes.isPresent() && chapterRes.get().getExam() != null && examResult.isPresent()) {
 			response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
 			response.put("resultId", examResult.get().getId());
 			response.put(AppConstants.STATUS, true);
+		} else if (chapterRes.isPresent() &&  chapterRes.get().getExam() != null&&chapterRes.get().getExam().getQuestions().size()>0) {
+			response.put(AppConstants.MESSAGE, "takeATest");
 		}
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getSubjectExamIsCompleteOrNot(Integer subjectId, Integer studentId) {
+		Map<String, Object> response = new HashMap<>();
+
+		Optional<Subject> subject = subjectRepository.findBySubjectIdAndIsDeleted(subjectId);
+		Student student = studentRepository.findByStudentId(studentId);
+
+		Optional<SubjectExamResult> examResult = subjectExamResultRepo.findBySubjectAndStudent(subject.get(), student);
+
+		if (subject.isPresent() && subject.get().getExam() == null) {
+			response.put(AppConstants.MESSAGE, AppConstants.EXAM_NOT_FOUND);
+			response.put(AppConstants.STATUS, false);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} else if (subject.isPresent() && subject.get().getExam() != null && examResult.isPresent()) {
+			response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
+			response.put("resultId", examResult.get().getId());
+			response.put(AppConstants.STATUS, true);
+		} else if (subject.isPresent() && subject.get().getExam() != null
+				&& subject.get().getExam().getQuestions().size() > 0) {
+			response.put(AppConstants.MESSAGE, "takeATest");
+		}
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+
 	}
 
 	@Override
@@ -296,4 +386,17 @@ public class ExamServiceImpl implements IExamService {
 		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> getSubjectExamResultesBySubjectId(Integer subjectId) {
+		Map<String, Object> response = new HashMap<>();
+		List<SubjectExamResult> findAllById = subjectExamResultRepo.findAllStudentResultWithSubjectId(subjectId);
+		if (Objects.nonNull(findAllById)) {
+			response.put("examResult", findAllById);
+		} else {
+			response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
+		}
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
 }

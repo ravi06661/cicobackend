@@ -46,11 +46,13 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Integer studentId);
 
-	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId);
+	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId, Integer pageNumber, Integer pageSise);
 
 	ResponseEntity<?> getSubmittedAssignmentBySubmissionId(Long submissionId);
 
 	ResponseEntity<?> updateAssignmentQuestion(Long questionId, String question, String videoUrl,
 			List<String> questionImages, List<MultipartFile> newImages);
+
+	ResponseEntity<?> activateAssignment(Long id);
 
 }

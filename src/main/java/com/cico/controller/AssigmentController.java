@@ -126,8 +126,9 @@ public class AssigmentController {
 
 	@GetMapping("/getAllSubmissionAssignmentTaskStatusByCourseIdFilter")
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(@RequestParam("courseId") Integer courseId,
-			@RequestParam("subjectId") Integer subjectId) {
-		return service.getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(courseId, subjectId);
+			@RequestParam("subjectId") Integer subjectId,
+			@RequestParam("pageSize") Integer pageSise, @RequestParam("pageNumber") Integer pageNumber) {
+		return service.getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(courseId, subjectId, pageNumber, pageSise);
 	}
  
 	@PutMapping("/updateAssignmentQuestion")
@@ -138,4 +139,10 @@ public class AssigmentController {
 		return service.updateAssignmentQuestion(questionId, question, videoUrl, questionImages, newImages);
 
 	}
+	@PutMapping("/activateAssignment")
+	public ResponseEntity<?>activateTask(@RequestParam("id")Long id){
+		return service.activateAssignment(id);
+	}
+
+	
 }

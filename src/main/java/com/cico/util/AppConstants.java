@@ -2,6 +2,26 @@ package com.cico.util;
 
 public class AppConstants {
 
+	public static final String PROFILE_PIC = "profilePic";
+
+	public static final String TASK_AND_ASSIGNMENT_SUBMISSION = "taskAndAssignmentSubmission";
+
+	public static final String TASK_ASSIGNMENT_FILES = "taskAndAssignmentFiles";
+
+	public static final String ATTENDANCE_IMAGES = "attEndanceImages";
+
+	public static final String SUBJECT_AND_CHAPTER_IMAGES = "subjectChapterImages";
+
+	public static final String DISCUSSION_FORUM_IMAGES = "discussionForumImages";
+
+	public static final String NEWS_AND_EVENT_IMAGES = "newEventImages";
+
+	public static final String TECHNOLOGY_IMAGES = "technologyStackImages";
+
+	public static final String DEFAULT_USER_IMAGE = "https://res.cloudinary.com/df04kiqy3/image/upload/v1707472824/profilePic/DefaultUser_vg4fff.jpg";
+
+	public static final String DEFAULT_ADMIN_IMAGE = "https://res.cloudinary.com/df04kiqy3/image/upload/v1707472624/profilePic/admin_nfehwt.png";
+	
 	public static final String DEFAULT_PAGE_NUMBER = "0";
 
 	public static final String DEFAULT_PAGE_SIZE = "10";
@@ -77,5 +97,14 @@ public class AppConstants {
 	public static final String TASK_NOT_FOUND = "task not found !!!";
 
 	public static final String EXAM_NOT_FOUND = "exam not found";
+
+	public static final String QUESTIONS = "questions";
+
+	public static final String EXAM = "exam";
+
+	public static final int RANDOM_QUESTION_SIZE = 30;
+
+	public static final String TIMER = "timer";
+
 
 }

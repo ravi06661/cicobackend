@@ -10,8 +10,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -54,11 +57,11 @@ public class TaskServiceImpl implements ITaskService {
 	@Autowired
 	FileServiceImpl fileService;
 
-	@Value("${questionImages}")
-	private String QUESTION_IMAGES_DIR;
-
-	@Value("${attachmentFiles}")
-	private String ATTACHMENT_FILES_DIR;
+//	@Value("${questionImages}")
+//	private String QUESTION_IMAGES_DIR;
+//
+//	@Value("${attachmentFiles}")
+//	private String ATTACHMENT_FILES_DIR;
 
 	@Autowired
 	CourseServiceImpl courseService;
@@ -91,8 +94,8 @@ public class TaskServiceImpl implements ITaskService {
 		task.setSubject(taskRequest.getSubject());
 		task.setTaskName(taskRequest.getTaskName().trim());
 		task.setIsDeleted(false);
+		task.setCreatedDate(LocalDateTime.now());
 		Task newTask = taskRepo.save(task);
-		System.out.println(newTask);
 		response.put(AppConstants.MESSAGE, AppConstants.CREATE_SUCCESS);
 		response.put("taskId", newTask.getTaskId());
 		return new ResponseEntity<>(response, HttpStatus.OK);
@@ -157,7 +160,7 @@ public class TaskServiceImpl implements ITaskService {
 				.map(this::taskquestionResponseFilter).collect(Collectors.toList()));
 
 		res.setAttachmentStatus(task.getAttachmentStatus());
-
+		res.setTaskAttachment(task.getTaskAttachment());
 		cr.setCourseId(task.getCourse().getCourseId());
 		cr.setCourseName(task.getCourse().getCourseName());
 
@@ -181,7 +184,7 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
-			String taskDescription)  {
+			String taskDescription) {
 		TaskSubmission obj = taskSubmissionRepository.findByTaskIdAndStudentId(taskId, studentId);
 		Optional<Task> task = taskRepo.findByTaskIdAndIsDeletedFalse(taskId);
 //		if (Objects.nonNull(obj) && obj.getStatus().name().equals("Rejected") || !Objects.nonNull(obj)) {
@@ -189,7 +192,7 @@ public class TaskServiceImpl implements ITaskService {
 			TaskSubmission submittion = new TaskSubmission();
 			submittion.setStudent(studentRepository.findByStudentId(studentId));
 			if (Objects.nonNull(file)) {
-				String f = fileService.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
+				String f = fileService.uploadFileInFolder(file, "zip");
 				submittion.setSubmittionFileName(f);
 			}
 			// submittion.setTaskId(taskId);
@@ -220,7 +223,7 @@ public class TaskServiceImpl implements ITaskService {
 
 			if (Objects.nonNull(questionImages)) {
 				questionImages.forEach((t) -> {
-					String fileName = fileService.uploadFileInFolder(t, QUESTION_IMAGES_DIR);
+					String fileName = fileService.uploadFileInFolder(t, "question");
 					taskQuestion.getQuestionImages().add(fileName);
 				});
 			}
@@ -242,7 +245,7 @@ public class TaskServiceImpl implements ITaskService {
 
 		if (task.isPresent()) {
 			if (Objects.nonNull(attachment)) {
-				String fileName = fileService.uploadFileInFolder(attachment, ATTACHMENT_FILES_DIR);
+				String fileName = fileService.uploadFileInFolder(attachment, AppConstants.TASK_ASSIGNMENT_FILES);
 				task.get().setTaskAttachment(fileName);
 				taskRepo.save(task.get());
 			}
@@ -260,16 +263,12 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId, SubmissionStatus status) {
-		List<AssignmentSubmissionResponse> res = taskRepo.findAllSubmissionTaskWithCourseIdAndSubjectId(courseId,
-				subjectId, status);
+	public ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId, SubmissionStatus status,
+			Integer pageNumber, Integer pageSize) {
+		Page<AssignmentSubmissionResponse> res = taskRepo.findAllSubmissionTaskWithCourseIdAndSubjectId(courseId,
+				subjectId, status, PageRequest.of(pageNumber, pageSize));
+
 		return new ResponseEntity<>(res, HttpStatus.OK);
-	}
-
-	public ResponseEntity<?> getAllSubmissionTaskStatus() {
-		List<AssignmentAndTaskSubmission> allSubmissionTaskStatus = taskRepo.getAllSubmissionTaskStatus();
-		return new ResponseEntity<>(allSubmissionTaskStatus, HttpStatus.OK);
-
 	}
 
 	public ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId) {
@@ -289,7 +288,6 @@ public class TaskServiceImpl implements ITaskService {
 		});
 
 		return new ResponseEntity<>(list, HttpStatus.OK);
-		// return null;
 	}
 
 	@Override
@@ -330,16 +328,18 @@ public class TaskServiceImpl implements ITaskService {
 		List<Task> list = new ArrayList<>();
 		List<Subject> subjects = student.getCourse().getSubjects();
 		subjects.forEach(obj -> {
-			list.addAll(taskRepo.findBySubjectAndIsDeletedFalse(obj).parallelStream()
+			list.addAll(taskRepo.findBySubjectAndIsDeletedFalseAndIsActiveTrue(obj).parallelStream()
 					.filter(obj1 -> !obj1.getIsDeleted()).map(this::filterTask).collect(Collectors.toList()));
 
 		});
-		List<TaskResponse> collect = list.parallelStream().map(obj -> taskResponseFilter(obj))
-				.collect(Collectors.toList());
+		subjects.forEach(obj -> {
+		List<TaskResponse> collect = taskRepo.findBySubjectAndIsDeletedFalseAndIsActiveTrue(obj).parallelStream()
+					.filter(obj1 -> !obj1.getIsDeleted()).map(this::filterTask).map(this::taskReponseFilter).collect(Collectors.toList());
 
-		response.put(AppConstants.MESSAGE, AppConstants.DATA_FOUND);
+		response.put(AppConstants.MESSAGE,collect.size()>0?AppConstants.DATA_FOUND:AppConstants.NO_DATA_FOUND);
 		response.put("allTask", collect);
-
+		});
+	
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -433,25 +433,28 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId) {
+	public ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId,
+			Integer pageNumber, Integer pageSize) {
 
 		Map<String, Object> response = new HashMap<>();
 
-		List<Object[]> list = taskRepo.findAllTaskStatusWithCourseIdAndSubjectId(courseId, subjectId);
+		Page<AssignmentAndTaskSubmission> resp = taskRepo.findAllTaskStatusWithCourseIdAndSubjectId(courseId, subjectId,
+				PageRequest.of(pageNumber, pageSize, Sort.by(Direction.ASC, "createdDate")));
+//		List<Object[]> list = resp.getContent();
+//		List<AssignmentAndTaskSubmission> assignmentTaskStatusList = new ArrayList<>();
+//		for (Object[] row : list) {
+//			AssignmentAndTaskSubmission res = new AssignmentAndTaskSubmission();
+//			res.setTaskId((long) row[0]);
+//			res.setTotalSubmitted((long) row[1]);
+//			res.setUnReveiwed((long) row[2]);
+//			res.setReveiwed((long) row[3]);
+//			res.setTaskTitle((String) row[4]);
+//			assignmentTaskStatusList.add(res);
+//
+//		}
 
-		List<AssignmentAndTaskSubmission> assignmentTaskStatusList = new ArrayList<>();
-		for (Object[] row : list) {
-			AssignmentAndTaskSubmission res = new AssignmentAndTaskSubmission();
-			res.setTaskId((long) row[0]);
-			res.setTotalSubmitted((long) row[1]);
-			res.setUnReveiwed((long) row[2]);
-			res.setReveiwed((long) row[3]);
-			res.setTaskTitle((String) row[4]);
-			assignmentTaskStatusList.add(res);
+		response.put("data", resp);
 
-		}
-
-		response.put("data", assignmentTaskStatusList);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -471,7 +474,7 @@ public class TaskServiceImpl implements ITaskService {
 		}
 		if (Objects.nonNull(newImages) && newImages.size() > 0) {
 			List<String> fileNames = newImages.parallelStream()
-					.map(file -> fileService.uploadFileInFolder(file, QUESTION_IMAGES_DIR))
+					.map(file -> fileService.uploadFileInFolder(file, AppConstants.PROFILE_PIC))
 					.collect(Collectors.toList());
 			taskQuestion.getQuestionImages().addAll(fileNames);
 		}
@@ -479,6 +482,27 @@ public class TaskServiceImpl implements ITaskService {
 		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
 		response.put("question", save);
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteAttachement(Long taskId) {
+		Task task = taskRepo.findById(taskId).get();
+		task.setTaskAttachment("");
+		taskRepo.save(task);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> activateTask(Long id) {
+		Task task = taskRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException());
+		if (task.getIsActive())
+			task.setIsActive(false);
+		else
+			task.setIsActive(true);
+
+		Map<String, Object> res = new HashMap<>();
+		res.put(AppConstants.STATUS, taskRepo.save(task).getIsActive());
+		return new ResponseEntity<>(res,HttpStatus.OK);
 	}
 
 }

@@ -95,13 +95,8 @@ public class TaskController {
 
 	@GetMapping("/getAllSubmitedTask")
 	public ResponseEntity<?> getAllSubmitedTasks(@RequestParam("courseId") Integer courseId,
-			@RequestParam("subjectId") Integer subjectId, @RequestParam("status") SubmissionStatus status) {
-		return taskService.getAllSubmitedTasks(courseId, subjectId, status);
-	}
-
-	@GetMapping("/getAllSubmissionTaskStatus")
-	public ResponseEntity<?> getAllSubmissionTaskStatus() {
-		return taskService.getAllSubmissionTaskStatus();
+			@RequestParam("subjectId") Integer subjectId, @RequestParam("status") SubmissionStatus status,@RequestParam("pageSize") Integer pageSise, @RequestParam("pageNumber") Integer pageNumber) {
+		return taskService.getAllSubmitedTasks(courseId, subjectId, status,pageNumber,pageSise);
 	}
 
 	@PutMapping("/updateSubmitedAssignmentStatus")
@@ -133,8 +128,9 @@ public class TaskController {
 
 	@GetMapping("/getAllSubmissionTaskStatusByCourseIdAndSubjectId")
 	public ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(
-			@RequestParam("courseId") Integer courseId, @RequestParam("subjectId") Integer subjectId) {
-		return taskService.getAllSubmissionTaskStatusByCourseIdAndSubjectId(courseId, subjectId);
+			@RequestParam("courseId") Integer courseId, @RequestParam("subjectId") Integer subjectId,
+			@RequestParam("pageSize") Integer pageSise, @RequestParam("pageNumber") Integer pageNumber) {
+		return taskService.getAllSubmissionTaskStatusByCourseIdAndSubjectId(courseId, subjectId, pageNumber, pageSise);
 	}
 
 	@PutMapping("/updateTaskQuestion")
@@ -145,4 +141,15 @@ public class TaskController {
 		return taskService.updateTaskQuestion(questionId, question, videoUrl, questionImages, newImages);
 
 	}
+	
+	@DeleteMapping("/deleteAttachement")
+	public ResponseEntity<?> deleteAttachement(@RequestParam("taskId") Long taskId) {
+		return taskService.deleteAttachement(taskId);
+	}
+	
+	@PutMapping("/activateTask")
+	public ResponseEntity<?>activateTask(@RequestParam("id")Long id){
+		return taskService.activateTask(id);
+	}
+
 }

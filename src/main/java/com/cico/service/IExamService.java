@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Exam;
-import com.cico.payload.ChapterExamResultRequest;
+import com.cico.payload.ExamRequest;
 
 public interface IExamService {
 
@@ -24,14 +24,20 @@ public interface IExamService {
 
 	List<Exam> getAllExams();
 
-	List<Exam> getExamsByChapter(Integer chapterId);
-
-	ResponseEntity<?> addChapterExamResult(ChapterExamResultRequest chapterExamResult);
+	ResponseEntity<?> addChapterExamResult(ExamRequest chapterExamResult);
 
 	ResponseEntity<?> getChapterExamResult(Integer id);
 
 	ResponseEntity<?> getChapterExamIsCompleteOrNot(Integer chapterId, Integer studentId);
 
 	ResponseEntity<?> getChapterExamResultByChaterId(Integer chapterId);
+
+	ResponseEntity<?> getSubjectExamIsCompleteOrNot(Integer subjectId, Integer studentId);
+
+	ResponseEntity<?> getSubjectExamResult(Integer subjectId);
+
+	ResponseEntity<?> addSubjectExamResult(ExamRequest request);
+
+	ResponseEntity<?> getSubjectExamResultesBySubjectId(Integer subjectId);
 
 }

@@ -30,7 +30,7 @@ public class AdminServiceImpl implements IAdminService {
 
 	@Autowired
 	private AdminRepository repo;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
@@ -42,18 +42,18 @@ public class AdminServiceImpl implements IAdminService {
 
 	@Autowired
 	private JwtUtil jwtUtil;
-
-	@Value("${fileUploadPath}")
-	private String IMG_UPLOAD_DIR;
-
-	@Value("${workReportUploadPath}")
-	private String WORK_UPLOAD_DIR;
+//
+//	@Value("${fileUploadPath}")
+//	private String IMG_UPLOAD_DIR;
+//
+//	@Value("${workReportUploadPath}")
+//	private String WORK_UPLOAD_DIR;
 
 	@Override
 	public JwtResponse adminLogin(String adminId, String password) {
 		Optional<Admin> adminEmail = repo.findByAdminEmail(adminId);
 		if (adminEmail.isPresent()) {
-			if (encoder.matches(password,adminEmail.get().getPassword())) {
+			if (encoder.matches(password, adminEmail.get().getPassword())) {
 				String token = jwtUtil.generateTokenForAdmin(adminId);
 				return new JwtResponse(token);
 			} else {
@@ -73,7 +73,7 @@ public class AdminServiceImpl implements IAdminService {
 		if (findByAdminEmail.isPresent()) {
 			throw new ResourceAlreadyExistException(AppConstants.DATA_ALREADY_EXIST);
 		} else {
-			admin.setProfilePic("defultImage.png");
+			admin.setProfilePic(AppConstants.DEFAULT_ADMIN_IMAGE);
 			admin = repo.save(admin);
 		}
 		return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
@@ -114,8 +114,8 @@ public class AdminServiceImpl implements IAdminService {
 		if (admin.getProfilePic() != null && !admin.getProfilePic().isEmpty()) {
 			List<String> img = new ArrayList<>();
 			img.add(admin.getProfilePic());
-			fileService.deleteImagesInFolder(img, IMG_UPLOAD_DIR);
-			String image = fileService.uploadFileInFolder(file, IMG_UPLOAD_DIR);
+			//fileService.deleteImagesInFolder(img, AppConstants.PROFILE_PIC);
+			String image = fileService.uploadFileInFolder(file, AppConstants.PROFILE_PIC);
 			admin.setProfilePic(image);
 		} else {
 			admin.setProfilePic(admin.getProfilePic());
@@ -156,11 +156,11 @@ public class AdminServiceImpl implements IAdminService {
 		Admin admin = repo.findById(adminId).get();
 
 		if (profileImage != null && !profileImage.isEmpty()) {
-			String image = fileService.uploadFileInFolder(profileImage, IMG_UPLOAD_DIR);
+			String image = fileService.uploadFileInFolder(profileImage, AppConstants.PROFILE_PIC);
 			admin.setProfilePic(image);
 			admin = repo.save(admin);
 		}
-		
+
 		AdminResponse map = modelMapper.map(admin, AdminResponse.class);
 		return map;
 	}
