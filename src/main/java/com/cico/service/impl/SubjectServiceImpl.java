@@ -18,6 +18,7 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.Course;
 import com.cico.model.Subject;
+import com.cico.model.SubjectExam;
 import com.cico.payload.ChapterResponse;
 import com.cico.payload.SubjectResponse;
 import com.cico.payload.TechnologyStackResponse;
@@ -47,6 +48,8 @@ public class SubjectServiceImpl implements ISubjectService {
 	private CourseRepository courseRepository;
 
 	@Override
+	
+
 	public ResponseEntity<?> addSubject(String subjectName, Integer imageId) {
 		Map<String, Object> response = new HashMap<>();
 		Subject subject = subRepo.findBySubjectNameAndIsDeleted(subjectName.trim());
@@ -56,6 +59,8 @@ public class SubjectServiceImpl implements ISubjectService {
 		subject = new Subject();
 		subject.setSubjectName(subjectName.trim());
 		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
+	
+		subject.setExam(new SubjectExam());
 
 		Subject save = subRepo.save(subject);
 

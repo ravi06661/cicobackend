@@ -12,4 +12,5 @@ public class AssignmentFilterResponse {
 	private String title;
 	private List<AssignmentTaskFilterReponse> taskQuestion;
 	private Integer totalTaskCompleted;
+	private Boolean status;
 }

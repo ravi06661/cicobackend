@@ -1,5 +1,6 @@
 package com.cico.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -10,16 +11,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
-public class Exam {
-    
+public class SubjectExam {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer examId;
@@ -29,13 +25,15 @@ public class Exam {
 
 	private Integer score;
 	private String examImage;
-  
+
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Question> questions;
-	
-	private Boolean isDeleted;
+
+	private Boolean isDeleted = false;
 	private Boolean isActive = true;
-    private Integer examTimer;
-	
-	
+	private Integer examTimer;
+	private Integer passingMarks;
+	private Integer totalQuestionForTest;
+	private LocalDateTime startTimer;
+
 }

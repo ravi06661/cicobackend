@@ -25,8 +25,8 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 	@Autowired
 	private NewsEventsRepository newsEventsRepository;
 
-	@Value("${newsEventsImages}")
-	private String filePath;
+//	@Value("${newsEventsImages}")
+//	private String filePath;
 
 	@Autowired
 	private IFileService fileService;
@@ -37,7 +37,7 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 		NewsEvents newsEvents = new NewsEvents();
 
 		if (file != null && !file.isEmpty()) {
-			newsEvents.setImage(fileService.uploadFileInFolder(file, filePath));
+			newsEvents.setImage(fileService.uploadFileInFolder(file,AppConstants.NEWS_AND_EVENT_IMAGES));
 		}
 		newsEvents.setShortDescription(shortDescription);
 		newsEvents.setBriefDescription(briefDescription);
@@ -88,7 +88,7 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 			newsEvents.setTitle(newsEvents.getTitle());
 
 		if (file != null && !file.isEmpty()) {
-			newsEvents.setImage(fileService.uploadFileInFolder(file, filePath));
+			newsEvents.setImage(fileService.uploadFileInFolder(file, AppConstants.NEWS_AND_EVENT_IMAGES));
 		}
 
 		newsEvents.setUpdatedDate(LocalDateTime.now());

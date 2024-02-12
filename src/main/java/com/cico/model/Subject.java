@@ -30,8 +30,8 @@ public class Subject {
 
 	@OneToOne
 	private TechnologyStack technologyStack; // profile picture of subject
-	@OneToOne
-	private Exam exam;
+	@OneToOne(cascade = CascadeType.ALL )
+	private SubjectExam exam;
 	private Boolean isDeleted = false;
 	private Boolean isActive = true;
 }

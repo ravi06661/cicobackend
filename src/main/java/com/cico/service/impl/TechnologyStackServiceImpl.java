@@ -14,6 +14,7 @@ import com.cico.model.TechnologyStack;
 import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.IFileService;
 import com.cico.service.ITechnologyStackService;
+import com.cico.util.AppConstants;
 
 @Service
 public class TechnologyStackServiceImpl implements ITechnologyStackService {
@@ -22,13 +23,13 @@ public class TechnologyStackServiceImpl implements ITechnologyStackService {
 	private TechnologyStackRepository technologyStackRepository;
 	@Autowired
 	private IFileService fileService;
-	@Value("${technologyStackImages}")
-	private String filePath;
+//	@Value("${technologyStackImages}")
+//	private String filePath;
 
 	@Override
 	public TechnologyStack createTechnologyStack(String technologyName, MultipartFile file) {
 
-		String fileName = fileService.uploadFileInFolder(file, filePath);
+		String fileName = fileService.uploadFileInFolder(file, AppConstants.TECHNOLOGY_IMAGES);
 		System.out.println(technologyName);
 		TechnologyStack technologyStack = new TechnologyStack(technologyName, fileName);
 		technologyStack.setCreatedDate(LocalDateTime.now());
@@ -53,7 +54,7 @@ public class TechnologyStackServiceImpl implements ITechnologyStackService {
 			technologyStack.setTechnologyName(technologyStack.getTechnologyName());
 
 		if (file != null && !file.isEmpty()) {
-			fileName = fileService.uploadFileInFolder(file, filePath);
+			fileName = fileService.uploadFileInFolder(file, AppConstants.TECHNOLOGY_IMAGES);
 		}
 		technologyStack.setUpdatedDate(LocalDateTime.now());
 		return technologyStackRepository.save(technologyStack);
@@ -85,5 +86,4 @@ public class TechnologyStackServiceImpl implements ITechnologyStackService {
 		return technologyStackRepository.findByTechnologyName(name);
 	}
 
-	
 }

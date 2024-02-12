@@ -37,6 +37,7 @@ import com.cico.repository.LikeRepo;
 import com.cico.repository.StudentRepository;
 import com.cico.service.IFileService;
 import com.cico.service.IdiscussionForm;
+import com.cico.util.AppConstants;
 
 @Service
 public class DiscussionFormServiceImpl implements IdiscussionForm {
@@ -49,8 +50,8 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 	@Autowired
 	private StudentRepository studentRepository;;
 
-	@Value("${discussionFromFile}")
-	private String FILE_UPLAOD_DIR;
+//	@Value("${discussionFromFile}")
+//	private String FILE_UPLAOD_DIR;
 
 	@Autowired
 	private DiscussionFormCommentRepo discussionFormCommentRepo;
@@ -77,11 +78,11 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			discusssionForm.setStudent(student);
 
 			if (Objects.nonNull(file) && !file.isEmpty()) {
-				String savedFile = fileService.uploadFileInFolder(file, FILE_UPLAOD_DIR);
+				String savedFile = fileService.uploadFileInFolder(file, AppConstants.DISCUSSION_FORUM_IMAGES);
 				discusssionForm.setFile(savedFile);
 			}
 			if (Objects.nonNull(audioFile) && !audioFile.isEmpty()) {
-				String savedFile = fileService.uploadFileInFolder(audioFile, FILE_UPLAOD_DIR);
+				String savedFile = fileService.uploadFileInFolder(audioFile, AppConstants.DISCUSSION_FORUM_IMAGES);
 				discusssionForm.setAudioFile(savedFile);
 			}
 
@@ -129,7 +130,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			comment.setContent(content);
 			comment.setStudent(student);
 			if (Objects.nonNull(file) && !file.isEmpty()) {
-				String savedFile = fileService.uploadFileInFolder(file, FILE_UPLAOD_DIR);
+				String savedFile = fileService.uploadFileInFolder(file, AppConstants.DISCUSSION_FORUM_IMAGES);
 				comment.setFile(savedFile);
 			}
 			DiscussionFormComment savedComment = discussionFormCommentRepo.save(comment);
@@ -448,7 +449,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			obj.setCreatedDate(LocalDateTime.now());
 			obj.setStudent(student.get());
 			if (Objects.nonNull(file) && !file.isEmpty()) {
-				String savedFile = fileService.uploadFileInFolder(file, FILE_UPLAOD_DIR);
+				String savedFile = fileService.uploadFileInFolder(file, AppConstants.DISCUSSION_FORUM_IMAGES);
 				obj.setFile(savedFile);
 			}
 			CommentReply save2 = commentReplyRepo.save(obj);

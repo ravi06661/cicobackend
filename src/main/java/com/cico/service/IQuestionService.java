@@ -9,7 +9,7 @@ import com.cico.model.Question;
 
 public interface IQuestionService {
 
-	Question addQuestion(Integer chapterId,String questionContent,String option1,String option2, String option3,String option4,MultipartFile image, String correctOption);
+	Question addQuestionToChapterExam(Integer chapterId,String questionContent,String option1,String option2, String option3,String option4,MultipartFile image, String correctOption);
 
 	ResponseEntity<?> updateQuestion(Integer questionId,String questionContent,String option1,String option2, String option3,String option4, String correctOption,MultipartFile image);
 
@@ -24,5 +24,14 @@ public interface IQuestionService {
 	List<Question> getQuestionsByExam(Integer examId);
 
 	Question getQuestionById(Integer questionId); //running
+
+	Question addQuestionToSubjectExam(Integer subjectId, String questionContent, String option1, String option2,
+			String option3, String option4, MultipartFile image, String correctOption);
+
+	List<Question> getAllQuestionBySubjectId(Integer subjectId);
+
+	ResponseEntity<?> getAllSubjectQuestionForTest(Integer subjectId);
+
+	ResponseEntity<?> getAllSubjectExam(Integer studentId);
 
 }

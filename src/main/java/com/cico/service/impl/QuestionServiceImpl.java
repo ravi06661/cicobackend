@@ -1,9 +1,14 @@
 package com.cico.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.RandomAccess;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +23,17 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.Exam;
 import com.cico.model.Question;
+import com.cico.model.Student;
+import com.cico.model.Subject;
+import com.cico.model.SubjectExam;
 import com.cico.payload.QuestionResponse;
+import com.cico.payload.SubjectExamResponse;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.QuestionRepo;
+import com.cico.repository.StudentRepository;
+import com.cico.repository.SubjectExamRepo;
+import com.cico.repository.SubjectRepository;
 import com.cico.service.IFileService;
 import com.cico.service.IQuestionService;
 import com.cico.util.AppConstants;
@@ -43,11 +55,20 @@ public class QuestionServiceImpl implements IQuestionService {
 	@Autowired
 	private ChapterServiceImpl chapterServiceImpl;
 
-	@Value("${fileUploadPath}")
-	private String IMG_UPLOAD_DIR;
+//	@Value("${fileUploadPath}")
+//	private String IMG_UPLOAD_DIR;
+
+	@Autowired
+	private SubjectRepository subjectRepository;
+
+	@Autowired
+	private SubjectExamRepo subjectExamRepo;
+
+	@Autowired
+	private StudentRepository studentRepository;
 
 	@Override
-	public Question addQuestion(Integer chapterId, String questionContent, String option1, String option2,
+	public Question addQuestionToChapterExam(Integer chapterId, String questionContent, String option1, String option2,
 			String option3, String option4, MultipartFile image, String correctOption) {
 		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent, false);
 		if (Objects.nonNull(questionObj))
@@ -62,7 +83,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		questionObj.setCorrectOption(correctOption);
 		if (image != null) {
 			questionObj.setQuestionImage(image.getOriginalFilename());
-			String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
+			String file = fileService.uploadFileInFolder(image, AppConstants.SUBJECT_AND_CHAPTER_IMAGES);
 			questionObj.setQuestionImage(file);
 		}
 
@@ -77,11 +98,43 @@ public class QuestionServiceImpl implements IQuestionService {
 	}
 
 	@Override
+	public Question addQuestionToSubjectExam(Integer subjectId, String questionContent, String option1, String option2,
+			String option3, String option4, MultipartFile image, String correctOption) {
+		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent, false);
+		if (Objects.nonNull(questionObj))
+			throw new ResourceAlreadyExistException("Question already exist");
+
+		questionObj = new Question();
+		questionObj.setQuestionContent(questionContent);
+		questionObj.setOption1(option1);
+		questionObj.setOption2(option2);
+		questionObj.setOption3(option3);
+		questionObj.setOption4(option4);
+		questionObj.setCorrectOption(correctOption);
+		if (image != null) {
+			questionObj.setQuestionImage(image.getOriginalFilename());
+			String file = fileService.uploadFileInFolder(image,AppConstants.SUBJECT_AND_CHAPTER_IMAGES);
+			questionObj.setQuestionImage(file);
+		}
+
+		Question save = questionRepo.save(questionObj);
+		Optional<Subject> subject = subjectRepository.findById(subjectId);
+		if (subject.isPresent()) {
+			SubjectExam exam = subject.get().getExam();
+			exam.getQuestions().add(save);
+			exam.setScore(exam.getQuestions().size());
+			exam.setExamTimer(exam.getQuestions().size());
+			subjectExamRepo.save(exam);
+		}
+		return save;
+	}
+
+	@Override
 	public ResponseEntity<?> updateQuestion(Integer questionId, String questionContent, String option1, String option2,
 			String option3, String option4, String correctOption, MultipartFile image) {
-
+		getAllQuestionBySubjectId(539);
 		Map<String, Object> response = new HashMap<>();
-System.out.println(option1+""+option2+""+option3+""+option4);
+		System.out.println(option1 + "" + option2 + "" + option3 + "" + option4);
 		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 		if (questionContent != null)
@@ -113,27 +166,26 @@ System.out.println(option1+""+option2+""+option3+""+option4);
 		if (image != null && !image.isEmpty()) {
 			if (image != null) {
 				question.setQuestionImage(image.getOriginalFilename());
-				String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
+				String file = fileService.uploadFileInFolder(image, AppConstants.SUBJECT_AND_CHAPTER_IMAGES);
 				question.setQuestionImage(file);
 			}
 		} else {
 			question.setQuestionImage(question.getQuestionImage());
 		}
-		
-		 Question res = questionRepo.save(question);
-		 QuestionResponse  q = new QuestionResponse();
-		 q.setCorrectOption(res.getCorrectOption());
-		 q.setOption1(res.getOption1());
-		 q.setOption2(res.getOption2());
-		 q.setOption3(res.getOption3());
-		 q.setOption4(res.getOption4());
-		 q.setQuestionContent(res.getQuestionContent());
-		 q.setQuestionId(res.getQuestionId());
-		 q.setQuestionImage(res.getQuestionImage());
-		 
+
+		Question res = questionRepo.save(question);
+		QuestionResponse q = new QuestionResponse();
+		q.setCorrectOption(res.getCorrectOption());
+		q.setOption1(res.getOption1());
+		q.setOption2(res.getOption2());
+		q.setOption3(res.getOption3());
+		q.setOption4(res.getOption4());
+		q.setQuestionContent(res.getQuestionContent());
+		q.setQuestionId(res.getQuestionId());
+		q.setQuestionImage(res.getQuestionImage());
+
 		response.put(AppConstants.MESSAGE, AppConstants.UPDATE_SUCCESSFULLY);
-		response.put("question",q);
-		
+		response.put("question", q);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -141,6 +193,7 @@ System.out.println(option1+""+option2+""+option3+""+option4);
 
 	@Override
 	public List<Question> getAllQuestionByChapterId(Integer chapterId) {
+
 		Map<String, Object> chapter = chapterServiceImpl.getChapterById(chapterId);
 		Chapter chapter1 = (Chapter) chapter.get("chapter");
 		return chapter1.getExam().getQuestions();
@@ -193,6 +246,63 @@ System.out.println(option1+""+option2+""+option3+""+option4);
 	public Question getQuestionById(Integer questionId) {
 		return this.questionRepo.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found with this id " + questionId));
+	}
+
+	@Override
+	public List<Question> getAllQuestionBySubjectId(Integer subjectId) {
+		List<Question> allQuestions = new ArrayList<>();
+		Optional<Subject> subject = subjectRepository.findById(subjectId);
+		if (subject.isPresent()) {
+			allQuestions.addAll(subject.get().getExam().getQuestions().parallelStream()
+					.filter(obj -> !obj.getIsDeleted()).collect(Collectors.toList()));
+		}
+		return allQuestions;
+	}
+
+	@Override
+	public ResponseEntity<?> getAllSubjectQuestionForTest(Integer subjectId) {
+		List<Question> allQuestions = new ArrayList<>();
+		List<Question> randomQuestionList = new ArrayList<>();
+		Optional<Subject> subject = subjectRepository.findById(subjectId);
+		Map<String, Object> response = new HashMap<>();
+
+		if (subject.isPresent()) {
+
+			allQuestions.addAll(subject.get().getExam().getQuestions());
+
+			List<Chapter> chapters = subject.get().getChapters().stream().filter(obj -> !obj.getIsDeleted())
+					.collect(Collectors.toList());
+			List<List<Question>> collect = chapters.parallelStream().filter(o -> !o.getIsDeleted())
+					.map(obj -> obj.getExam().getQuestions()).collect(Collectors.toList());
+
+			for (List<Question> q : collect) {
+				allQuestions.addAll(q);
+			}
+
+		}
+		Random random = new Random();
+		int size = Math.min(AppConstants.RANDOM_QUESTION_SIZE, allQuestions.size());
+		for (int i = 0; i < size; i++) {
+			int randomIndex = random.nextInt(allQuestions.size());
+			randomQuestionList.add(allQuestions.remove(randomIndex));
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+		response.put(AppConstants.QUESTIONS, randomQuestionList);
+		response.put(AppConstants.TIMER, subject.get().getExam().getStartTimer());
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getAllSubjectExam(Integer studentId) {
+		Map<String, Object> response = new HashMap<>();
+		Optional<Student> student = studentRepository.findById(studentId);
+		List<SubjectExamResponse> allSubjectExam = new ArrayList<>();
+		if (student.isPresent()) {
+			allSubjectExam = subjectRepository.getAllSubjectExam(studentId);
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+		response.put(AppConstants.EXAM, allSubjectExam);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 }

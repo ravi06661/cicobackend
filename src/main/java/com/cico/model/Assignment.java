@@ -14,8 +14,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -48,8 +46,10 @@ public class Assignment {
 	@OneToOne
 	private Subject subject;
 
-	private Boolean isDeleted = true;
+	private Boolean isDeleted =false;
+	private Boolean isActive = false;
 
 	private LocalDateTime createdDate;
+	
 
 }

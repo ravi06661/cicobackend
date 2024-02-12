@@ -1,23 +1,18 @@
 package com.cico.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +33,8 @@ public class JobAlertServiceImpl implements IJobAlertService {
 	@Autowired
 	private JobAlertRepository repository;
 
-	@Value("${jobAlertImages}")
-	private String IMG_UPLOAD_DIR;
+//	@Value("${jobAlertImages}")
+//	private String IMG_UPLOAD_DIR;
 
 	@Autowired
 	private ITechnologyStackService technologyStackService;

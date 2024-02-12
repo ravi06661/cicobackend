@@ -3,7 +3,6 @@ package com.cico.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Exam;
-import com.cico.payload.ChapterExamResultRequest;
+import com.cico.payload.ExamRequest;
 import com.cico.service.IExamService;
 
 @RestController
@@ -71,15 +70,19 @@ public class ExamController {
 		return ResponseEntity.ok(exams);
 	}
 
-	@GetMapping("/getExamsByChapter")
-	public ResponseEntity<List<Exam>> getExamsByChapter(@RequestParam("chapterId") Integer chapterId) {
-		List<Exam> exams = examService.getExamsByChapter(chapterId);
-		return ResponseEntity.ok(exams);
-	}
+//	@GetMapping("/getExamsByChapter")
+//	public ResponseEntity<List<Exam>> getExamsByChapter(@RequestParam("chapterId") Integer chapterId) {
+//		List<Exam> exams = examService.getExamsByChapter(chapterId);
+//		return ResponseEntity.ok(exams);
+//	}
 
 	@PostMapping("/addChapterExam")
-	public ResponseEntity<?> addChapterExamResult(@RequestBody ChapterExamResultRequest chapterExamResult) {
+	public ResponseEntity<?> addChapterExamResult(@RequestBody ExamRequest chapterExamResult) {
 		return this.examService.addChapterExamResult(chapterExamResult);
+	}
+	@PostMapping("/addSubjectExam")
+	public ResponseEntity<?> addSubjectExamResult(@RequestBody ExamRequest chapterExamResult) {
+		return this.examService.addSubjectExamResult(chapterExamResult);
 	}
 	
 	@GetMapping("/getChapterExamResult")
@@ -87,13 +90,29 @@ public class ExamController {
 		return examService.getChapterExamResult(id);
 	}
 	
+	@GetMapping("/getSubjectExamResult")
+	public ResponseEntity<?> getSubjectExamResult(@RequestParam("resultId") Integer id){  ///
+		return examService.getSubjectExamResult(id);
+	}
+	
 	@GetMapping("/getALLChapterExamResultesByChapterIdApi")
 	public ResponseEntity<?> getChapterExamResultes(@RequestParam("chapterId") Integer chapterId){
 		return examService.getChapterExamResultByChaterId(chapterId);
 	}
 	
+	@GetMapping("/getALLSubjectExamResultesBySubjectIddApi")
+	public ResponseEntity<?> getSubjectExamResultes(@RequestParam("subjectId") Integer subjectId){
+		return examService.getSubjectExamResultesBySubjectId(subjectId);
+	}
+	
 	@GetMapping("/checkExamCompleteOrNot")
 	public ResponseEntity<?> checkExamCompletedOrNot(@RequestParam("chapterId") Integer chapterId,@RequestParam("studentId") Integer studentId){
 		return examService.getChapterExamIsCompleteOrNot(chapterId,studentId);
+	}
+	
+
+	@GetMapping("/getSubectExamIsCompleteOrNot")
+	public ResponseEntity<?> checkSubjectCompleteOrNot(@RequestParam("subjectId") Integer subjectId,@RequestParam("studentId") Integer studentId){
+		return examService.getSubjectExamIsCompleteOrNot(subjectId,studentId);
 	}
 }

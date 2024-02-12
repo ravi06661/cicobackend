@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.cico.model.Subject;
+import com.cico.payload.SubjectExamResponse;
 import com.cico.payload.SubjectResponse;
 
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
@@ -39,4 +40,16 @@ public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 	        "LEFT JOIN ChapterExamResult er ON (er.chapter.chapterId = c.chapterId AND er.student.studentId = :studentId) " +
 	        "WHERE s.isDeleted = 0 AND s.subjectId = :subjectId ")
 	List<Object[]> getAllChapterWithSubjectIdAndStudentId(@Param("subjectId") Integer subjectId, @Param("studentId") Integer studentId);
+	
+	@Query("SELECT NEW com.cico.payload.SubjectExamResponse( s.subjectName,  e.examId,s.subjectId, s.technologyStack.imageName, e.isActive, e.examTimer, COUNT(q), e.passingMarks,sr.scoreGet ,e.startTimer) " +
+		       "FROM Course c " +
+		       "LEFT JOIN c.subjects s  ON s.isDeleted = 0 " +
+		       "LEFT JOIN s.exam e " +
+		       "LEFT JOIN e.questions q ON q.isDeleted = 0 " +
+		       "LEFT JOIN SubjectExamResult  sr ON sr.student.studentId =:studentId " +
+		       "JOIN Student student ON student.studentId = :studentId " +
+		       "WHERE student.course = c AND c.isDeleted = 0  " +
+		       "GROUP BY s.subjectId, e.examId ,sr.id")
+		List<SubjectExamResponse> getAllSubjectExam(@Param("studentId") Integer studentId);
+
 }

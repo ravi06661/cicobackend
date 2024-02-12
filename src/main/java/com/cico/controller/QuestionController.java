@@ -26,14 +26,26 @@ public class QuestionController {
 	IQuestionService questionService;
 
 	@PostMapping("/addQuestionToChapter")
-	public ResponseEntity<Question> addQuestion(@RequestParam("chapterId") Integer chapterId,
+	public ResponseEntity<Question> addQuestionToChapterExam(@RequestParam("chapterId") Integer chapterId,
 			@RequestParam("questionContent") String questionContent, @RequestParam("option1") String option1,
 			@RequestParam("option2") String option2, @RequestParam("option3") String option3,
 			@RequestParam("option4") String option4,
 			@RequestParam(name = "image", required = false) MultipartFile image,
 			@RequestParam("correctOption") String correctOption) {
-		Question question = questionService.addQuestion(chapterId, questionContent, option1, option2, option3, option4,
-				image, correctOption);
+		Question question = questionService.addQuestionToChapterExam(chapterId, questionContent, option1, option2,
+				option3, option4, image, correctOption);
+		return new ResponseEntity<Question>(question, HttpStatus.OK);
+	}
+
+	@PostMapping("/addQuestionToSubjectExam")
+	public ResponseEntity<Question> addQuestionToSubjectExam(@RequestParam("subjectId") Integer subjectId,
+			@RequestParam("questionContent") String questionContent, @RequestParam("option1") String option1,
+			@RequestParam("option2") String option2, @RequestParam("option3") String option3,
+			@RequestParam("option4") String option4,
+			@RequestParam(name = "image", required = false) MultipartFile image,
+			@RequestParam("correctOption") String correctOption) {
+		Question question = questionService.addQuestionToSubjectExam(subjectId, questionContent, option1, option2,
+				option3, option4, image, correctOption);
 		return new ResponseEntity<Question>(question, HttpStatus.OK);
 	}
 
@@ -43,15 +55,26 @@ public class QuestionController {
 			@RequestParam("option3") String option3, @RequestParam("option4") String option4,
 			@RequestParam("questionId") Integer questionId, @RequestParam("correctOption") String correctOption,
 			@RequestParam(name = "image", required = false) MultipartFile image) {
-		 return  questionService.updateQuestion(questionId, questionContent, option1, option2, option3,
-				option4, correctOption, image);
-	
+		return questionService.updateQuestion(questionId, questionContent, option1, option2, option3, option4,
+				correctOption, image);
 	}
 
 	@GetMapping("/getAllQuestionByChapterId")
 	public ResponseEntity<List<Question>> getAllQuestionById(@RequestParam("chapterId") Integer chapterId) {
 		List<Question> question = questionService.getAllQuestionByChapterId(chapterId);
 		return ResponseEntity.ok(question);
+	}
+
+	@GetMapping("/getAllSubjectQuestion")
+	public ResponseEntity<List<Question>> getAllQuestionBySubjectId(@RequestParam("subjectId") Integer subjectId) {
+		List<Question> question = questionService.getAllQuestionBySubjectId(subjectId);
+		return ResponseEntity.ok(question);
+	}
+
+	@GetMapping("/getAllSubjectQuestionForTest")
+	public ResponseEntity<?> getAllSubjectQuestionForTest(@RequestParam("subjectId") Integer subjectId) {
+		return questionService.getAllSubjectQuestionForTest(subjectId);
+
 	}
 
 	@GetMapping("/getQuestionById")
@@ -83,6 +106,10 @@ public class QuestionController {
 		List<Question> questions = questionService.getQuestionsByExam(examId);
 		return ResponseEntity.ok(questions);
 	}
-	
-	
+
+	@GetMapping("/getAllSubjectExam")
+	public ResponseEntity<?> getAllSubjectExam(@RequestParam("studentId") Integer studentId) {
+		return questionService.getAllSubjectExam(studentId);
+	}
+
 }

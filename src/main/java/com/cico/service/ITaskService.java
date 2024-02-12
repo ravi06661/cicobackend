@@ -31,9 +31,8 @@ public interface ITaskService {
 
 	ResponseEntity<?> deleteTaskQuestion( Long questionId);
 
-	ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId, SubmissionStatus status);
+	ResponseEntity<?> getAllSubmitedTasks(Integer courseId, Integer subjectId, SubmissionStatus status, Integer pageNumber, Integer pageSise);
 
-	ResponseEntity<?> getAllSubmissionTaskStatus();
 
 	ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId);
 
@@ -49,9 +48,14 @@ public interface ITaskService {
 
 	ResponseEntity<?> getTaskQuestion(Long questionId);
 
-	ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId);
-
 	ResponseEntity<?> updateTaskQuestion(Long questionId, String question, String videoUrl, List<String> questionImages,
 			List<MultipartFile> newImages);
+
+	ResponseEntity<?> getAllSubmissionTaskStatusByCourseIdAndSubjectId(Integer courseId, Integer subjectId,
+			Integer pageNumber, Integer pageSize);
+
+	ResponseEntity<?> deleteAttachement(Long taskId);
+
+	ResponseEntity<?> activateTask(Long id);
 
 }
